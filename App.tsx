@@ -36,7 +36,7 @@ export default function App() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+            let iconName = ''; // Add a default value for iconName
             if (route.name === 'House') {
               iconName = 'home'; // Change as appropriate
             } else if (route.name === 'Tasks') {
