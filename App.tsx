@@ -1,71 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';  // Import Icon
+import { createStackNavigator } from '@react-navigation/stack';
+import { StyleSheet } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import AuthenticationScreen from './screens/AuthenticationScreen'; 
+import MainNavigator from './screens/MainNavigator';
 
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-const HouseScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.text}>House</Text>
-  </View>
-);
+const App = () => {  
+  const [initializing, setInitializing] = useState(true);  
+  const [user, setUser] = useState(null);  
 
-const TasksScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.text}>Tasks</Text>
-  </View>
-);
+  useEffect(() => {  
+    const subscriber = auth().onAuthStateChanged((user) => {  
+      setUser(user);  
+      if (initializing) setInitializing(false);  
+    });  
+    return subscriber; // unsubscribe on unmount  
+  }, [initializing]);  // Ensure `initializing` is in the dependency array
 
-const SplitScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.text}>Split</Text>
-  </View>
-);
+  if (initializing) return null;  
 
-const SettingsScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.text}>Settings</Text>
-  </View>
-);
-
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName = ''; // Add a default value for iconName
-            if (route.name === 'House') {
-              iconName = 'home'; // Change as appropriate
-            } else if (route.name === 'Tasks') {
-              iconName = 'list'; // Change as appropriate
-            } else if (route.name === 'Split') {
-              iconName = 'payments'; // Change as appropriate
-            } else if (route.name === 'Settings') {
-              iconName = 'settings'; // Change as appropriate
-            }
-
-            // You can return any component that you like here!
-            return <Icon name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: 'white',
-          tabBarInactiveTintColor: 'gray',
-          headerShown: false,
-          tabBarStyle: styles.tabBar,
-        })}
-      >
-        <Tab.Screen name="House" component={HouseScreen} />
-        <Tab.Screen name="Tasks" component={TasksScreen} />
-        <Tab.Screen name="Split" component={SplitScreen} />
-        <Tab.Screen name="Settings" component={SettingsScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
-}
+  return (  
+    <NavigationContainer>  
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Main" component={MainNavigator} /> 
+        {user ? (  
+          <Stack.Screen name="Main" component={MainNavigator} />  
+        ) : (
+          <Stack.Screen name="Auth" component={AuthenticationScreen} />  
+        )}  
+      </Stack.Navigator>  
+    </NavigationContainer>  
+  );  
+}  
 
 const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: '#000814',
+    borderTopColor: 'transparent',
+    position: 'absolute',
+    bottom: 0,
+    padding: 10,
+    height: 70,
+    justifyContent: 'center',
+  },
   screen: {
     flex: 1,
     justifyContent: 'center',
@@ -76,13 +57,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
   },
-  tabBar: {
-    backgroundColor: '#000814', // Dark blue, close to black
-    borderTopColor: 'transparent',
-    position: 'absolute',
-    bottom: 0,
-    padding: 10,
-    height: 70, // Adjust based on accessibility needs
-    justifyContent: 'center',
-  }
 });
+
+export default App;
