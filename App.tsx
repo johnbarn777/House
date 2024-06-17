@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import AuthenticationScreen from './screens/AuthenticationScreen'; 
 import MainNavigator from './screens/MainNavigator';
@@ -21,7 +20,21 @@ const App = () => {
     return subscriber; // unsubscribe on unmount  
   }, [initializing]);  // Ensure `initializing` is in the dependency array
 
-  if (initializing) return null;  
+  if (initializing) {
+
+    return (
+
+      <View style={styles.loadingContainer}>
+
+        <ActivityIndicator size="large" color="#0000ff" />
+
+        <Text style={styles.loadingText}>Loading...</Text>
+
+      </View>
+
+    );
+
+  }
 
   return (  
     <NavigationContainer>  
@@ -38,6 +51,23 @@ const App = () => {
 }  
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+
+    flex: 1,
+
+    justifyContent: 'center',
+
+    alignItems: 'center',
+
+  },
+
+  loadingText: {
+
+    marginTop: 10,
+
+    fontSize: 18,
+
+  },
   tabBar: {
     backgroundColor: '#000814',
     borderTopColor: 'transparent',
