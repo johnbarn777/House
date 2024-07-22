@@ -1,11 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import auth from '@react-native-firebase/auth';
 
-const SettingsScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.text}>Settings</Text>
-  </View>
-);
+const SettingsScreen = () => {
+  const handleSignOut = async () => {
+    try {
+      await auth().signOut();
+      // Sign-out successful
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
+  return (
+    <View style={styles.screen}>
+      <Text style={styles.text}>Settings</Text>
+      <Button title="Sign Out" onPress={handleSignOut} color="#007bff" />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   screen: {
@@ -17,6 +30,7 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     fontSize: 20,
+    marginBottom: 20,
   },
 });
 
