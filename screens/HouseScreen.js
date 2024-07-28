@@ -1,42 +1,83 @@
-import React from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
+// HouseScreen.js
+
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import JoinHouseDialog from '../components/JoinHouseDialog';
 
 const HouseScreen = () => {
-  const houseName = "Your House"; // You can replace this with dynamic data if needed
+  const [modalVisible, setModalVisible] = useState(false);
+  const [houseData, setHouseData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const user = auth().currentUser;
+
+  useEffect(() => {
+    const fetchHouseData = async () => {
+      const housesRef = await firestore().collection('houses').where('members', 'array-contains', user.uid).get();
+      if (!housesRef.empty) {
+        setHouseData(housesRef.docs[0].data());
+      }
+      setLoading(false);
+    };
+
+    fetchHouseData();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.circleContainer}>
         <View style={styles.circle}>
-          <Text style={styles.houseName}>{houseName}</Text>
+          <Text style={styles.houseName}>{houseData ? houseData.houseName : 'Start your House'}</Text>
         </View>
       </View>
-      <View style={styles.content}>
-        <View style={styles.module}>
-          <Text style={styles.moduleTitle}>Upcoming Tasks</Text>
-          <Text style={styles.moduleContent}>- Task 1</Text>
-          <Text style={styles.moduleContent}>- Task 2</Text>
-          <Text style={styles.moduleContent}>- Task 3</Text>
+      {houseData ? (
+        <View style={styles.content}>
+          <View style={styles.module}>
+            <Text style={styles.moduleTitle}>Upcoming Tasks</Text>
+            <Text style={styles.moduleContent}>- Task 1</Text>
+            <Text style={styles.moduleContent}>- Task 2</Text>
+            <Text style={styles.moduleContent}>- Task 3</Text>
+          </View>
+          <View style={styles.module}>
+            <Text style={styles.moduleTitle}>Recent House Purchases</Text>
+            <Text style={styles.moduleContent}>- Purchase 1</Text>
+            <Text style={styles.moduleContent}>- Purchase 2</Text>
+            <Text style={styles.moduleContent}>- Purchase 3</Text>
+          </View>
+          <View style={styles.module}>
+            <Text style={styles.moduleTitle}>Integrations</Text>
+            <Text style={styles.moduleContent}>- Integration 1</Text>
+            <Text style={styles.moduleContent}>- Integration 2</Text>
+            <Text style={styles.moduleContent}>- Integration 3</Text>
+          </View>
         </View>
-        <View style={styles.module}>
-          <Text style={styles.moduleTitle}>Recent House Purchases</Text>
-          <Text style={styles.moduleContent}>- Purchase 1</Text>
-          <Text style={styles.moduleContent}>- Purchase 2</Text>
-          <Text style={styles.moduleContent}>- Purchase 3</Text>
-        </View>
-        <View style={styles.module}>
-          <Text style={styles.moduleTitle}>Integrations</Text>
-          <Text style={styles.moduleContent}>- Integration 1</Text>
-          <Text style={styles.moduleContent}>- Integration 2</Text>
-          <Text style={styles.moduleContent}>- Integration 3</Text>
-        </View>
-      </View>
+      ) : (
+        <View style={styles.emptyContent} />
+      )}
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Icon name="add" size={30} color="white" />
+      </TouchableOpacity>
+      <JoinHouseDialog
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        setHouseData={setHouseData}
+      />
     </ScrollView>
   );
 };
 
 const { width } = Dimensions.get('window');
-const circleDiameter = width * 2; // Adjust this value to control the size of the circle
+const circleDiameter = width * 2;
 
 const styles = StyleSheet.create({
   container: {
@@ -49,26 +90,26 @@ const styles = StyleSheet.create({
   },
   circleContainer: {
     alignItems: 'center',
-    height: width, // Adjust the height to ensure it fits within the top part
-    marginBottom: -width / 2, // Negative margin to position content correctly
+    height: width,
+    marginBottom: -width / 2,
   },
   circle: {
     width: circleDiameter,
     height: circleDiameter,
     borderRadius: circleDiameter / 2,
     backgroundColor: 'white',
-    justifyContent: 'flex-end', // Align content to the bottom of the circle
+    justifyContent: 'flex-end',
     alignItems: 'center',
     position: 'absolute',
     bottom: 0,
-    paddingBottom: circleDiameter / 4, // Add padding to move text upwards within the bottom half
+    paddingBottom: circleDiameter / 4,
   },
   houseName: {
     fontSize: 24,
     color: 'black',
   },
   content: {
-    paddingTop: width / 2, // Padding to ensure content starts below the circle
+    paddingTop: width / 2,
     paddingHorizontal: 16,
   },
   module: {
@@ -84,6 +125,22 @@ const styles = StyleSheet.create({
   },
   moduleContent: {
     fontSize: 16,
+    color: 'white',
+  },
+  emptyContent: {
+    flex: 1,
+    paddingTop: width / 2,
+  },
+  addButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#007bff',
+    borderRadius: 50,
+    padding: 10,
+  },
+  loadingText: {
+    fontSize: 18,
     color: 'white',
   },
 });
