@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginHorizontal: 20,
-    marginTop: 60,
+    marginTop: 30,
     alignItems: 'center',
   },
   input: {
