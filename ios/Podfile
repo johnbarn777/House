@@ -14,7 +14,6 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-$FirebaseSDKVersion = '11.12.0'
 target 'House' do
   config = use_native_modules!
   use_frameworks! :linkage => :static
@@ -23,24 +22,16 @@ target 'House' do
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/..",
-    :fabric_enabled => false,
-    :new_arch_enabled => false
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
   post_install do |installer|
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings["GCC_WARN_INHIBIT_ALL_WARNINGS"] = "YES"
-      end
-    end
-
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      :ccache_enabled => true
+      # :ccache_enabled => true
     )
   end
 end

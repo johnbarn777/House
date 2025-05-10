@@ -1,5 +1,5 @@
 {
-  "name": "House",
+  "name": "com.package.house",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -34,10 +34,9 @@
     "@react-navigation/stack": "^7.3.1",
     "react": "19.0.0",
     "react-native": "0.79.1",
-    "react-native-gesture-handler": "2.20.0",
+    "react-native-gesture-handler": "^2.25.0",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "^4.10.0",
-    "react-native-reanimated": "3.15.5",
     "react-native-vector-icons": "^10.2.0"
   },
   "devDependencies": {
@@ -62,6 +61,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+  }
 }

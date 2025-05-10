@@ -1,5 +1,4 @@
 import UIKit
-import RNFBAppCheck
 import FirebaseCore
 import React
 import React_RCTAppDelegate
@@ -16,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    RNFBAppCheckModule.sharedInstance()
     FirebaseApp.configure()
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
@@ -50,4 +48,3 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
 #endif
   }
 }
-
