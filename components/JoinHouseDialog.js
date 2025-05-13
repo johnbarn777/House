@@ -1,5 +1,4 @@
 // JoinHouseDialog.js
-
 import React, { useState } from 'react';
 import {
   View,
@@ -8,8 +7,10 @@ import {
   Text,
   StyleSheet,
   Modal,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
@@ -24,22 +25,17 @@ const generateHouseCode = () => {
 };
 
 const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
+  const insets = useSafeAreaInsets();
   const [houseName, setHouseName] = useState('');
   const [houseCode, setHouseCode] = useState('');
   const user = auth().currentUser;
 
-  /**
-   * Creates a new house with a unique 6-character code.
-   * Ensures no collision by checking Firestore for existing docs.
-   */
   const createHouse = async () => {
     if (!houseName.trim()) {
       Alert.alert('Error', 'Please enter a house name.');
       return;
     }
-
     try {
-      // Generate a non-colliding code
       let newCode;
       let exists = true;
       while (exists) {
@@ -47,19 +43,12 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
         const doc = await firestore().collection('houses').doc(newCode).get();
         exists = doc.exists;
       }
-
-      // Create document with code as ID
-      await firestore()
-        .collection('houses')
-        .doc(newCode)
-        .set({
-          houseName: houseName.trim(),
-          members: [user.uid]
-        });
-
+      await firestore().collection('houses').doc(newCode).set({
+        houseName: houseName.trim(),
+        members: [user.uid]
+      });
       Alert.alert('Success', `House created! Your house code is: ${newCode}`);
       setModalVisible(false);
-      // Pass back the new house data including code
       setHouseData({ houseName: houseName.trim(), members: [user.uid], code: newCode });
     } catch (error) {
       console.error('Error creating house:', error);
@@ -67,25 +56,17 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
     }
   };
 
-  /**
-   * Joins an existing house by code.
-   */
   const joinHouse = async () => {
     const codePattern = /^[A-Za-z0-9]{6}$/;
     if (!codePattern.test(houseCode)) {
       Alert.alert('Error', 'House code must be exactly 6 alphanumeric characters.');
       return;
     }
-
     try {
       const docRef = firestore().collection('houses').doc(houseCode);
       const doc = await docRef.get();
-
       if (doc.exists) {
-        await docRef.update({
-          members: firestore.FieldValue.arrayUnion(user.uid)
-        });
-
+        await docRef.update({ members: firestore.FieldValue.arrayUnion(user.uid) });
         Alert.alert('Success', 'Joined house successfully!');
         setModalVisible(false);
         setHouseData({ ...doc.data(), code: houseCode });
@@ -104,9 +85,27 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
       transparent
       visible={modalVisible}
       onRequestClose={() => setModalVisible(false)}
+      presentationStyle="overFullScreen"
+      statusBarTranslucent={true}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalView}>
+      <View
+        style={[
+          styles.overlay,
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom
+          }
+        ]}
+      >
+        <View
+          style={[
+            styles.modalView,
+            {
+              marginTop: insets.top + 20,
+              marginBottom: insets.bottom + 20
+            }
+          ]}
+        >
           <TextInput
             style={styles.input}
             placeholder="Enter House Name"
@@ -145,13 +144,17 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   modalView: {
-    margin: 20,
+    width: '90%',
     backgroundColor: 'black',
     borderRadius: 20,
     padding: 35,
@@ -160,8 +163,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
-    width: '90%'
+    elevation: 5
   },
   input: {
     height: 40,
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     color: 'white',
     backgroundColor: '#333',
-    width: '100%',
+    width: '100%'
   },
   button: {
     backgroundColor: '#6a0dad',
@@ -181,16 +183,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginVertical: 10,
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   closeButton: {
-    backgroundColor: '#8B0000',
+    backgroundColor: '#8B0000'
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'
+  }
 });
 
 export default JoinHouseDialog;
