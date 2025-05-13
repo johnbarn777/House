@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const ChoresScreen = () => {
@@ -22,7 +23,8 @@ const ChoresScreen = () => {
   const [newChore, setNewChore] = useState('');
   const [loading, setLoading] = useState(true);
   const [houseCode, setHouseCode] = useState(null);
-  const user = auth().currentUser;
+  const auth = getAuth(getApp());
+const user = auth.currentUser;
 
   useEffect(() => {
     let unsubscribe = null;

@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 
 // Helper to generate a 6-character alphanumeric code
 const generateHouseCode = () => {
@@ -28,7 +29,8 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
   const insets = useSafeAreaInsets();
   const [houseName, setHouseName] = useState('');
   const [houseCode, setHouseCode] = useState('');
-  const user = auth().currentUser;
+  const auth = getAuth(getApp());
+const user = auth.currentUser;
 
   const createHouse = async () => {
     if (!houseName.trim()) {
