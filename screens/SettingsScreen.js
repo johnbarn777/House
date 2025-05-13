@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 
 const SettingsScreen = () => {
   const handleSignOut = async () => {

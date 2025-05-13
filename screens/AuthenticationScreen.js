@@ -20,7 +20,8 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
 
 const { width } = Dimensions.get('window');

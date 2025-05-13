@@ -1,3 +1,4 @@
+// HouseScreen.js (modular v22 API)
 import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
@@ -11,12 +12,23 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
+import {
+  getFirestore,
+  collection,
+  doc as docRef,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  onSnapshot
+} from '@react-native-firebase/firestore';
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 import JoinHouseDialog from '../components/JoinHouseDialog';
 
 const { width } = Dimensions.get('window');
 const circleDiameter = width * 2;
+const TAB_BAR_HEIGHT = 40; // adjust if needed
 
 const HouseScreen = () => {
   const insets = useSafeAreaInsets();
@@ -24,32 +36,34 @@ const HouseScreen = () => {
   const [houseData, setHouseData] = useState(null);
   const [chores, setChores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = auth().currentUser;
+
+  const auth = getAuth(getApp());
+  const user = auth.currentUser;
+  const db = getFirestore(getApp());
 
   useEffect(() => {
     let unsubscribe = null;
-
     const init = async () => {
       try {
-        const snap = await firestore()
-          .collection('houses')
-          .where('members', 'array-contains', user.uid)
-          .get();
-
+        // fetch house document where user is member
+        const housesQ = query(
+          collection(db, 'houses'),
+          where('members', 'array-contains', user.uid)
+        );
+        const snap = await getDocs(housesQ);
         if (!snap.empty) {
-          const doc = snap.docs[0];
-          const data = { ...doc.data(), code: doc.id };
+          const houseDoc = snap.docs[0];
+          const data = { ...houseDoc.data(), code: houseDoc.id };
           setHouseData(data);
 
-          unsubscribe = firestore()
-            .collection('houses')
-            .doc(doc.id)
-            .collection('chores')
-            .orderBy('createdAt', 'desc')
-            .onSnapshot(
-              qs => setChores(qs.docs.map(d => ({ id: d.id, ...d.data() }))),
-              err => console.error('Chores onSnapshot error:', err)
-            );
+          // subscribe to chores subcollection
+          const choresQ = query(
+            collection(docRef(db, 'houses', houseDoc.id), 'chores'),
+            orderBy('createdAt', 'desc')
+          );
+          unsubscribe = onSnapshot(choresQ, qs => {
+            setChores(qs.docs.map(d => ({ id: d.id, ...d.data() })));
+          }, err => console.error('Chores onSnapshot error:', err));
         }
       } catch (e) {
         console.error('Error fetching house/chores:', e);
@@ -58,16 +72,13 @@ const HouseScreen = () => {
         setLoading(false);
       }
     };
-
     init();
     return () => unsubscribe && unsubscribe();
-  }, [user]);
+  }, [user.uid]);
 
   if (loading) {
     return (
-      <SafeAreaView
-        style={[styles.loadingContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
-      >
+      <SafeAreaView style={[styles.loadingContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>        
         <Text style={styles.loadingText}>Loading...</Text>
       </SafeAreaView>
     );
@@ -77,13 +88,11 @@ const HouseScreen = () => {
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>      
       <ScrollView
         style={styles.container}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 70 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + TAB_BAR_HEIGHT }]}
       >
         <View style={styles.circleContainer}>
           <View style={styles.circle}>
-            <Text style={styles.houseName}>
-              {houseData?.houseName || 'Start your House'}
-            </Text>
+            <Text style={styles.houseName}>{houseData?.houseName || 'Start your House'}</Text>
             {houseData?.code && <Text style={styles.houseCode}>Code: {houseData.code}</Text>}
           </View>
         </View>
@@ -101,14 +110,13 @@ const HouseScreen = () => {
               )}
             </View>
 
-            {/* Other modules… */}
+            {/* Additional modules... */}
             <View style={styles.module}>
               <Text style={styles.moduleTitle}>Recent House Purchases</Text>
               <Text style={styles.moduleContent}>- Purchase 1</Text>
               <Text style={styles.moduleContent}>- Purchase 2</Text>
               <Text style={styles.moduleContent}>- Purchase 3</Text>
             </View>
-
             <View style={styles.module}>
               <Text style={styles.moduleTitle}>Integrations</Text>
               <Text style={styles.moduleContent}>- Integration 1</Text>
@@ -120,7 +128,7 @@ const HouseScreen = () => {
       </ScrollView>
 
       <TouchableOpacity
-        style={[styles.addButton, { bottom: insets.bottom + 40 }]}
+        style={[styles.addButton, { bottom: insets.bottom + TAB_BAR_HEIGHT }]}
         onPress={() => setModalVisible(true)}
       >
         <Icon name="add" size={30} color="white" />
@@ -149,7 +157,7 @@ const styles = StyleSheet.create({
   moduleTitle: { fontSize: 20, color: 'white', marginBottom: 8 },
   moduleContent: { fontSize: 16, color: 'white' },
   emptyContent: { flex: 1, paddingTop: width / 2 },
-  addButton: { position: 'absolute', right: 20, backgroundColor: '#007bff', borderRadius: 50, padding: 10, zIndex: 1000, elevation: 1000 },
+  addButton: { position: 'absolute', right: 20, backgroundColor: '#007bff', borderRadius: 50, padding: 10, zIndex: 1000, elevation: 1000 }
 });
 
 export default HouseScreen;
