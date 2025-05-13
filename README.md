@@ -20,19 +20,13 @@ Welcome to the ultimate house-sharing solution! Whether you're living with roomm
 
 ### Prerequisites
 
-- **Node.js**: v14 or higher
-- **React Native**: v0.64 or higher
+- **Node.js**: v18 or higher
+- **React Native**: v0.79.1 or higher
 - **Firebase**: Set up your Firebase project and get the configuration details.
 
 ### Installation
 
-Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/yourusername/house-harmony.git
-cd house-harmony
-npm install
-```
+Clone the repository and install dependencies
 
 ### Configuration
 
