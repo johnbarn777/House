@@ -131,7 +131,7 @@ const HouseScreen = () => {
         style={[styles.addButton, { bottom: insets.bottom + TAB_BAR_HEIGHT }]}
         onPress={() => setModalVisible(true)}
       >
-        <Icon name="add" size={30} color="white" />
+        <Icon name="plus" size={30} color="white" />
       </TouchableOpacity>
 
       <JoinHouseDialog
@@ -144,7 +144,7 @@ const HouseScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'black' },
+  container: { flex: 1, backgroundColor: '#0A0F1F' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' },
   loadingText: { color: 'white', fontSize: 18 },
   scrollContent: { flexGrow: 1 },
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   moduleTitle: { fontSize: 20, color: 'white', marginBottom: 8 },
   moduleContent: { fontSize: 16, color: 'white' },
   emptyContent: { flex: 1, paddingTop: width / 2 },
-  addButton: { position: 'absolute', right: 20, backgroundColor: '#007bff', borderRadius: 50, padding: 10, zIndex: 1000, elevation: 1000 }
+  addButton: { position: 'absolute', right: 20, backgroundColor: '#ae00ff', borderRadius: 50, padding: 10, zIndex: 1000, elevation: 1000 }
 });
 
 export default HouseScreen;
