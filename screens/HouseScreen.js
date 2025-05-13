@@ -1,59 +1,124 @@
-// HouseScreen.js
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+  Alert
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import JoinHouseDialog from '../components/JoinHouseDialog';
 
+const { width } = Dimensions.get('window');
+const circleDiameter = width * 2;
+
 const HouseScreen = () => {
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [houseData, setHouseData] = useState(null);
+  const [chores, setChores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [houseCode, setHouseCode] = useState(null);
   const user = auth().currentUser;
 
   useEffect(() => {
-    const fetchHouseData = async () => {
-      const housesRef = await firestore().collection('houses').where('members', 'array-contains', user.uid).get();
-      if (!housesRef.empty) {
-        setHouseData(housesRef.docs[0].data());
+    let unsubscribeChores = null;
+
+    const init = async () => {
+      try {
+        const snap = await firestore()
+          .collection('houses')
+          .where('members', 'array-contains', user.uid)
+          .get();
+
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          setHouseData({ ...doc.data(), code: doc.id });
+          setHouseCode(doc.id);
+
+          unsubscribeChores = firestore()
+            .collection('houses')
+            .doc(doc.id)
+            .collection('chores')
+            .orderBy('createdAt', 'desc')
+            .onSnapshot(
+              qs => {
+                setChores(qs.docs.map(d => ({ id: d.id, ...d.data() })));
+              },
+              err => console.error('Chores onSnapshot error:', err)
+            );
+        }
+      } catch (e) {
+        console.error('Error fetching house/chores:', e);
+        Alert.alert('Error', 'Could not load house data.');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchHouseData();
+    init();
+    return () => {
+      if (unsubscribeChores) unsubscribeChores();
+    };
   }, [user]);
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: insets.bottom + 70 }
+      ]}
+    >
       <View style={styles.circleContainer}>
         <View style={styles.circle}>
-          <Text style={styles.houseName}>{houseData ? houseData.houseName : 'Start your House'}</Text>
+          <Text style={styles.houseName}>
+            {houseData?.houseName || 'Start your House'}
+          </Text>
+          {houseData?.code && (
+            <Text style={styles.houseCode}>Code: {houseData.code}</Text>
+          )}
         </View>
       </View>
+
       {houseData ? (
         <View style={styles.content}>
           <View style={styles.module}>
-            <Text style={styles.moduleTitle}>Upcoming Tasks</Text>
-            <Text style={styles.moduleContent}>- Task 1</Text>
-            <Text style={styles.moduleContent}>- Task 2</Text>
-            <Text style={styles.moduleContent}>- Task 3</Text>
+            <Text style={styles.moduleTitle}>Upcoming Chores</Text>
+            {chores.length > 0 ? (
+              chores.map(chore => (
+                <Text
+                  key={chore.id}
+                  style={styles.moduleContent}
+                >
+                  - {chore.title}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.moduleContent}>No chores yet.</Text>
+            )}
           </View>
+
           <View style={styles.module}>
             <Text style={styles.moduleTitle}>Recent House Purchases</Text>
             <Text style={styles.moduleContent}>- Purchase 1</Text>
             <Text style={styles.moduleContent}>- Purchase 2</Text>
             <Text style={styles.moduleContent}>- Purchase 3</Text>
           </View>
+
           <View style={styles.module}>
             <Text style={styles.moduleTitle}>Integrations</Text>
             <Text style={styles.moduleContent}>- Integration 1</Text>
@@ -64,9 +129,14 @@ const HouseScreen = () => {
       ) : (
         <View style={styles.emptyContent} />
       )}
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+
+      <TouchableOpacity
+        style={[styles.addButton, { bottom: insets.bottom + 20 }]}
+        onPress={() => setModalVisible(true)}
+      >
         <Icon name="add" size={30} color="white" />
       </TouchableOpacity>
+
       <JoinHouseDialog
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -76,22 +146,28 @@ const HouseScreen = () => {
   );
 };
 
-const { width } = Dimensions.get('window');
-const circleDiameter = width * 2;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'black'
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black'
+  },
+  loadingText: {
+    color: 'white',
+    fontSize: 18
   },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 70,
+    flexGrow: 1
   },
   circleContainer: {
     alignItems: 'center',
     height: width,
-    marginBottom: -width / 2,
+    marginBottom: -width / 2
   },
   circle: {
     width: circleDiameter,
@@ -102,47 +178,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     bottom: 0,
-    paddingBottom: circleDiameter / 4,
+    paddingBottom: circleDiameter / 4
   },
   houseName: {
     fontSize: 24,
-    color: 'black',
+    color: 'black'
+  },
+  houseCode: {
+    fontSize: 16,
+    color: '#555',
+    marginTop: 4
   },
   content: {
     paddingTop: width / 2,
-    paddingHorizontal: 16,
+    paddingHorizontal: 16
   },
   module: {
     backgroundColor: '#1E1E1E',
     borderRadius: 8,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 16
   },
   moduleTitle: {
     fontSize: 20,
     color: 'white',
-    marginBottom: 8,
+    marginBottom: 8
   },
   moduleContent: {
     fontSize: 16,
-    color: 'white',
+    color: 'white'
   },
   emptyContent: {
     flex: 1,
-    paddingTop: width / 2,
+    paddingTop: width / 2
   },
   addButton: {
     position: 'absolute',
-    top: 40,
     right: 20,
     backgroundColor: '#007bff',
     borderRadius: 50,
-    padding: 10,
-  },
-  loadingText: {
-    fontSize: 18,
-    color: 'white',
-  },
+    padding: 10
+  }
 });
 
 export default HouseScreen;

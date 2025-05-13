@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StyleSheet } from 'react-native';
 
 import HouseScreen from './HouseScreen';
-import TasksScreen from './TasksScreen'; 
+import ChoresScreen from './ChoresScreen'; 
 import SplitScreen from './SplitScreen';
 import SettingsScreen from './SettingsScreen';  
 
@@ -18,7 +18,7 @@ const MainNavigator = () => (
         let iconName = '';  
         if (route.name === 'House') { 
           iconName = 'home'; 
-        } else if (route.name === 'Tasks') {  
+        } else if (route.name === 'Chores') {  
           iconName = 'list'; 
         } else if (route.name === 'Split') {  
           iconName = 'payments';
@@ -34,7 +34,7 @@ const MainNavigator = () => (
     })}  
   >  
     <Tab.Screen name="House" component={HouseScreen} />  
-    <Tab.Screen name="Tasks" component={TasksScreen} />  
+    <Tab.Screen name="Chores" component={ChoresScreen} />  
     <Tab.Screen name="Split" component={SplitScreen} />  
     <Tab.Screen name="Settings" component={SettingsScreen} />
   </Tab.Navigator>  
