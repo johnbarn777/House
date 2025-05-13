@@ -1,3 +1,6 @@
+import { enableScreens } from 'react-native-screens';
+enableScreens();
+
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -5,20 +8,13 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import AuthenticationScreen from './screens/AuthenticationScreen'; 
 import MainNavigator from './screens/MainNavigator';
+import { useAuth } from './hooks/useAuth'; // Import the useAuth hook
 
 const Stack = createStackNavigator();
 
 const App = () => {  
-  const [initializing, setInitializing] = useState(true);  
-  const [user, setUser] = useState(null);  
-
-  useEffect(() => {  
-    const subscriber = auth().onAuthStateChanged((user) => {  
-      setUser(user);  
-      if (initializing) setInitializing(false);  
-    });  
-    return subscriber; // unsubscribe on unmount  
-  }, [initializing]);  // Ensure `initializing` is in the dependency array
+  const { user, initializing } = useAuth();
+  
 
   if (initializing) {
 
@@ -38,13 +34,13 @@ const App = () => {
 
   return (  
     <NavigationContainer>  
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+     <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (  
           <Stack.Screen name="Main" component={MainNavigator} />  
         ) : (
           <Stack.Screen name="Auth" component={AuthenticationScreen} />  
         )}  
-      </Stack.Navigator>  
+      </Stack.Navigator>   
     </NavigationContainer>  
   );  
 }  

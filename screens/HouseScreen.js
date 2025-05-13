@@ -17,6 +17,9 @@ import JoinHouseDialog from '../components/JoinHouseDialog';
 const { width } = Dimensions.get('window');
 const circleDiameter = width * 2;
 
+const { width } = Dimensions.get('window');
+const circleDiameter = width * 2;
+
 const HouseScreen = () => {
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
@@ -93,6 +96,7 @@ const HouseScreen = () => {
           )}
         </View>
       </View>
+
 
       {houseData ? (
         <View style={styles.content}>
@@ -188,6 +192,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginTop: 4
+  },
+  houseCode: {
+    fontSize: 16,
+    color: '#555',
+    marginTop: 4,
   },
   content: {
     paddingTop: width / 2,
