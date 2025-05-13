@@ -1,11 +1,20 @@
-// HouseScreen.js
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+  Alert
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import JoinHouseDialog from '../components/JoinHouseDialog';
+
+const { width } = Dimensions.get('window');
+const circleDiameter = width * 2;
 
 const HouseScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -15,9 +24,15 @@ const HouseScreen = () => {
 
   useEffect(() => {
     const fetchHouseData = async () => {
-      const housesRef = await firestore().collection('houses').where('members', 'array-contains', user.uid).get();
-      if (!housesRef.empty) {
-        setHouseData(housesRef.docs[0].data());
+      const snapshot = await firestore()
+        .collection('houses')
+        .where('members', 'array-contains', user.uid)
+        .get();
+
+      if (!snapshot.empty) {
+        const doc = snapshot.docs[0];
+        // include the document ID as the house code
+        setHouseData({ ...doc.data(), code: doc.id });
       }
       setLoading(false);
     };
@@ -34,12 +49,23 @@ const HouseScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.circleContainer}>
         <View style={styles.circle}>
-          <Text style={styles.houseName}>{houseData ? houseData.houseName : 'Start your House'}</Text>
+          <Text style={styles.houseName}>
+            {houseData ? houseData.houseName : 'Start your House'}
+          </Text>
+          {houseData?.code && (
+            <Text style={styles.houseCode}>
+              Code: {houseData.code}
+            </Text>
+          )}
         </View>
       </View>
+
       {houseData ? (
         <View style={styles.content}>
           <View style={styles.module}>
@@ -64,9 +90,14 @@ const HouseScreen = () => {
       ) : (
         <View style={styles.emptyContent} />
       )}
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Icon name="add" size={30} color="white" />
       </TouchableOpacity>
+
       <JoinHouseDialog
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -75,9 +106,6 @@ const HouseScreen = () => {
     </ScrollView>
   );
 };
-
-const { width } = Dimensions.get('window');
-const circleDiameter = width * 2;
 
 const styles = StyleSheet.create({
   container: {
@@ -107,6 +135,11 @@ const styles = StyleSheet.create({
   houseName: {
     fontSize: 24,
     color: 'black',
+  },
+  houseCode: {
+    fontSize: 16,
+    color: '#555',
+    marginTop: 4,
   },
   content: {
     paddingTop: width / 2,
