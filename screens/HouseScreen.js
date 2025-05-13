@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  SafeAreaView,
   View,
   Text,
   StyleSheet,
@@ -17,20 +18,16 @@ import JoinHouseDialog from '../components/JoinHouseDialog';
 const { width } = Dimensions.get('window');
 const circleDiameter = width * 2;
 
-const { width } = Dimensions.get('window');
-const circleDiameter = width * 2;
-
 const HouseScreen = () => {
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [houseData, setHouseData] = useState(null);
   const [chores, setChores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [houseCode, setHouseCode] = useState(null);
   const user = auth().currentUser;
 
   useEffect(() => {
-    let unsubscribeChores = null;
+    let unsubscribe = null;
 
     const init = async () => {
       try {
@@ -41,18 +38,16 @@ const HouseScreen = () => {
 
         if (!snap.empty) {
           const doc = snap.docs[0];
-          setHouseData({ ...doc.data(), code: doc.id });
-          setHouseCode(doc.id);
+          const data = { ...doc.data(), code: doc.id };
+          setHouseData(data);
 
-          unsubscribeChores = firestore()
+          unsubscribe = firestore()
             .collection('houses')
             .doc(doc.id)
             .collection('chores')
             .orderBy('createdAt', 'desc')
             .onSnapshot(
-              qs => {
-                setChores(qs.docs.map(d => ({ id: d.id, ...d.data() })));
-              },
+              qs => setChores(qs.docs.map(d => ({ id: d.id, ...d.data() }))),
               err => console.error('Chores onSnapshot error:', err)
             );
         }
@@ -65,77 +60,67 @@ const HouseScreen = () => {
     };
 
     init();
-    return () => {
-      if (unsubscribeChores) unsubscribeChores();
-    };
+    return () => unsubscribe && unsubscribe();
   }, [user]);
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView
+        style={[styles.loadingContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
+      >
         <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.scrollContent,
-        { paddingBottom: insets.bottom + 70 }
-      ]}
-    >
-      <View style={styles.circleContainer}>
-        <View style={styles.circle}>
-          <Text style={styles.houseName}>
-            {houseData?.houseName || 'Start your House'}
-          </Text>
-          {houseData?.code && (
-            <Text style={styles.houseCode}>Code: {houseData.code}</Text>
-          )}
-        </View>
-      </View>
-
-
-      {houseData ? (
-        <View style={styles.content}>
-          <View style={styles.module}>
-            <Text style={styles.moduleTitle}>Upcoming Chores</Text>
-            {chores.length > 0 ? (
-              chores.map(chore => (
-                <Text
-                  key={chore.id}
-                  style={styles.moduleContent}
-                >
-                  - {chore.title}
-                </Text>
-              ))
-            ) : (
-              <Text style={styles.moduleContent}>No chores yet.</Text>
-            )}
-          </View>
-
-          <View style={styles.module}>
-            <Text style={styles.moduleTitle}>Recent House Purchases</Text>
-            <Text style={styles.moduleContent}>- Purchase 1</Text>
-            <Text style={styles.moduleContent}>- Purchase 2</Text>
-            <Text style={styles.moduleContent}>- Purchase 3</Text>
-          </View>
-
-          <View style={styles.module}>
-            <Text style={styles.moduleTitle}>Integrations</Text>
-            <Text style={styles.moduleContent}>- Integration 1</Text>
-            <Text style={styles.moduleContent}>- Integration 2</Text>
-            <Text style={styles.moduleContent}>- Integration 3</Text>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>      
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 70 }]}
+      >
+        <View style={styles.circleContainer}>
+          <View style={styles.circle}>
+            <Text style={styles.houseName}>
+              {houseData?.houseName || 'Start your House'}
+            </Text>
+            {houseData?.code && <Text style={styles.houseCode}>Code: {houseData.code}</Text>}
           </View>
         </View>
-      ) : (
-        <View style={styles.emptyContent} />
-      )}
+
+        {houseData && (
+          <View style={styles.content}>
+            <View style={styles.module}>
+              <Text style={styles.moduleTitle}>Upcoming Chores</Text>
+              {chores.length > 0 ? (
+                chores.map(chore => (
+                  <Text key={chore.id} style={styles.moduleContent}>- {chore.title}</Text>
+                ))
+              ) : (
+                <Text style={styles.moduleContent}>No chores yet.</Text>
+              )}
+            </View>
+
+            {/* Other modules… */}
+            <View style={styles.module}>
+              <Text style={styles.moduleTitle}>Recent House Purchases</Text>
+              <Text style={styles.moduleContent}>- Purchase 1</Text>
+              <Text style={styles.moduleContent}>- Purchase 2</Text>
+              <Text style={styles.moduleContent}>- Purchase 3</Text>
+            </View>
+
+            <View style={styles.module}>
+              <Text style={styles.moduleTitle}>Integrations</Text>
+              <Text style={styles.moduleContent}>- Integration 1</Text>
+              <Text style={styles.moduleContent}>- Integration 2</Text>
+              <Text style={styles.moduleContent}>- Integration 3</Text>
+            </View>
+          </View>
+        )}
+      </ScrollView>
 
       <TouchableOpacity
-        style={[styles.addButton, { bottom: insets.bottom + 20 }]}
+        style={[styles.addButton, { bottom: insets.bottom + 40 }]}
         onPress={() => setModalVisible(true)}
       >
         <Icon name="add" size={30} color="white" />
@@ -146,88 +131,25 @@ const HouseScreen = () => {
         setModalVisible={setModalVisible}
         setHouseData={setHouseData}
       />
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'black'
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'black'
-  },
-  loadingText: {
-    color: 'white',
-    fontSize: 18
-  },
-  scrollContent: {
-    flexGrow: 1
-  },
-  circleContainer: {
-    alignItems: 'center',
-    height: width,
-    marginBottom: -width / 2
-  },
-  circle: {
-    width: circleDiameter,
-    height: circleDiameter,
-    borderRadius: circleDiameter / 2,
-    backgroundColor: 'white',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    paddingBottom: circleDiameter / 4
-  },
-  houseName: {
-    fontSize: 24,
-    color: 'black'
-  },
-  houseCode: {
-    fontSize: 16,
-    color: '#555',
-    marginTop: 4
-  },
-  houseCode: {
-    fontSize: 16,
-    color: '#555',
-    marginTop: 4,
-  },
-  content: {
-    paddingTop: width / 2,
-    paddingHorizontal: 16
-  },
-  module: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16
-  },
-  moduleTitle: {
-    fontSize: 20,
-    color: 'white',
-    marginBottom: 8
-  },
-  moduleContent: {
-    fontSize: 16,
-    color: 'white'
-  },
-  emptyContent: {
-    flex: 1,
-    paddingTop: width / 2
-  },
-  addButton: {
-    position: 'absolute',
-    right: 20,
-    backgroundColor: '#007bff',
-    borderRadius: 50,
-    padding: 10
-  }
+  container: { flex: 1, backgroundColor: 'black' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' },
+  loadingText: { color: 'white', fontSize: 18 },
+  scrollContent: { flexGrow: 1 },
+  circleContainer: { alignItems: 'center', height: width, marginBottom: -width / 2 },
+  circle: { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2, backgroundColor: 'white', justifyContent: 'flex-end', alignItems: 'center', position: 'absolute', bottom: 0, paddingBottom: circleDiameter / 4 },
+  houseName: { fontSize: 24, color: 'black' },
+  houseCode: { fontSize: 16, color: '#555', marginTop: 4 },
+  content: { paddingTop: width / 2, paddingHorizontal: 16 },
+  module: { backgroundColor: '#1E1E1E', borderRadius: 8, padding: 16, marginBottom: 16 },
+  moduleTitle: { fontSize: 20, color: 'white', marginBottom: 8 },
+  moduleContent: { fontSize: 16, color: 'white' },
+  emptyContent: { flex: 1, paddingTop: width / 2 },
+  addButton: { position: 'absolute', right: 20, backgroundColor: '#007bff', borderRadius: 50, padding: 10, zIndex: 1000, elevation: 1000 },
 });
 
 export default HouseScreen;
