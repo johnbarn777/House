@@ -63,7 +63,7 @@ const HouseScreen = () => {
           );
           unsubscribe = onSnapshot(choresQ, qs => {
             setChores(qs.docs.map(d => ({ id: d.id, ...d.data() })));
-          }, err => console.error('Chores onSnapshot error:', err));
+          }, err => console.error('Chores on Snapshot error:', err));
         }
       } catch (e) {
         console.error('Error fetching house/chores:', e);
