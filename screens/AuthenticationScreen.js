@@ -20,16 +20,19 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
-import { getAuth } from '@react-native-firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider } from '@react-native-firebase/auth';
 import { getApp } from '@react-native-firebase/app';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
 
 const { width } = Dimensions.get('window');
 const SMALL_LOGO_SIZE = 120;
 const SPLASH_LOGO_SIZE = width;
-const FINAL_LOGO_Y_OFFSET = -width ;
+const FINAL_LOGO_Y_OFFSET = -width;
 
 const AuthenticationScreen = () => {
+  // Initialize Firebase Auth instance
+  const auth = getAuth(getApp());
+
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -62,21 +65,29 @@ const AuthenticationScreen = () => {
   const handleSignUp = async () => {
     setError('');
     if (password !== confirmPassword) return setError('Passwords do not match');
-    try { await auth().createUserWithEmailAndPassword(email.trim(), password); }
-    catch (e) { setError(e.message); }
+    try {
+      await createUserWithEmailAndPassword(auth, email.trim(), password);
+    } catch (e) {
+      setError(e.message);
+    }
   };
+
   const handleSignIn = async () => {
     setError('');
-    try { await auth().signInWithEmailAndPassword(email.trim(), password); }
-    catch (e) { setError(e.message); }
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+    } catch (e) {
+      setError(e.message);
+    }
   };
+
   const signInWithGoogle = async () => {
     setError('');
     try {
       await GoogleSignin.hasPlayServices();
       const { idToken } = await GoogleSignin.signIn();
-      const credential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(credential);
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
     } catch (e) {
       const msg = e.code === statusCodes.SIGN_IN_CANCELLED ? 'Cancelled' : e.message;
       setError(msg);
