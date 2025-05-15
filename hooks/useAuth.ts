@@ -1,21 +1,23 @@
 // hooks/useAuth.ts
-import React, { useState, useEffect } from 'react';
-import auth from '@react-native-firebase/auth';
-import { FirebaseAuthTypes } from '@react-native-firebase/auth';
-
+import { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
+import type { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 export function useAuth() {
-    const [initializing, setInitializing] = useState(true);
-    const [user, setUser] = useState<FirebaseAuthTypes.User|null>(null);
-  
-    useEffect(() => {
-      const unsub = auth().onAuthStateChanged(u => {
-        setUser(u);
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+
+  useEffect(() => {
+    const auth = getAuth(getApp());
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (initializing) {
         setInitializing(false);
-      });
-      return unsub;
-    }, []);
-  
-    return { user, initializing };
-  }
-  
+      }
+    });
+    return unsubscribe;
+  }, [initializing]);
+
+  return { user, initializing };
+}

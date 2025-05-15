@@ -3296,6 +3296,30 @@ PODS:
     - React-perflogger (= 0.79.1)
     - React-utils (= 0.79.1)
   - RecaptchaInterop (101.0.0)
+  - RNCPicker (2.11.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNFBAnalytics (21.14.0):
     - Firebase/Analytics (= 11.11.0)
     - React-Core
@@ -3566,6 +3590,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAppCheck (from `../node_modules/@react-native-firebase/app-check`)"
@@ -3779,6 +3804,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCPicker:
+    :path: "../node_modules/@react-native-picker/picker"
   RNFBAnalytics:
     :path: "../node_modules/@react-native-firebase/analytics"
   RNFBApp:
@@ -3939,6 +3966,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 025b1e9baf2a32b7466b00c20dd5b1b8c6388d07
   ReactCommon: ff9f7add7560c9f15cf6e9d0320f9ad45b696062
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
+  RNCPicker: c4e9fdf00bbd0d37c6c4f1df6eae3d4d7d32f1e3
   RNFBAnalytics: 03c83ba4617a3754c99e66267983efcc908932a9
   RNFBApp: a448037d2df74af9d374a0b765be12ff1e844dc0
   RNFBAppCheck: c82fb32d5e8425a43bf176172eb78bf063999ee3

@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 import AuthenticationScreen from './screens/AuthenticationScreen'; 
 import MainNavigator from './screens/MainNavigator';
 import { useAuth } from './hooks/useAuth'; // Import the useAuth hook
