@@ -1,4 +1,4 @@
-package com.package.house
+package com.house.app
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
