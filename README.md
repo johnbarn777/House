@@ -30,7 +30,7 @@ Clone the repository and install dependencies
 
 ### Configuration
 
-Update the Firebase configuration in `firebase.js`:
+Update the Firebase configuration in `firebase.js`: (Unnecessary at the moment, hardcoded API. SECURITY VULNERABILITY!!!)
 
 ```javascript
 const firebaseConfig = {
@@ -42,13 +42,22 @@ const firebaseConfig = {
   appId: "your-app-id",
 };
 ```
+### Install Dependencies
+
+Requires Yarn 4.xx probably need to activate Corepack in Node.js
+s
+```bash
+yarn install
+```
+
 
 ### Run the App
 
 For iOS:
+Set-up CocoaPods first.
 
 ```bash
-npx react-native run-ios
+pod install && npx react-native run-ios
 ```
 
 For Android:
