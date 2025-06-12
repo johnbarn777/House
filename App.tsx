@@ -9,7 +9,8 @@ import { getAuth } from '@react-native-firebase/auth';
 import { getApp } from '@react-native-firebase/app';
 import AuthenticationScreen from './screens/AuthenticationScreen'; 
 import MainNavigator from './screens/MainNavigator';
-import { useAuth } from './hooks/useAuth'; // Import the useAuth hook
+import { useAuth } from './src/hooks/useAuth'; // Import the useAuth hook
+import { HousesProvider } from './src/contexts/HousesContext'; 
 
 const Stack = createStackNavigator();
 
@@ -33,16 +34,18 @@ const App = () => {
 
   }
 
-  return (  
-    <NavigationContainer>  
-     <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (  
-          <Stack.Screen name="Main" component={MainNavigator} />  
-        ) : (
-          <Stack.Screen name="Auth" component={AuthenticationScreen} />  
-        )}  
-      </Stack.Navigator>   
-    </NavigationContainer>  
+  return (
+    <HousesProvider>
+      <NavigationContainer>  
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {user ? (  
+            <Stack.Screen name="Main" component={MainNavigator} />  
+          ) : (
+            <Stack.Screen name="Auth" component={AuthenticationScreen} />  
+          )}  
+        </Stack.Navigator>   
+      </NavigationContainer>
+    </HousesProvider>  
   );  
 }  
 

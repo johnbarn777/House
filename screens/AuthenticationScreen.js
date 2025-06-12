@@ -16,7 +16,8 @@ import {
   Animated,
   Platform,
   TouchableOpacity,
-  SafeAreaView
+  SafeAreaView,
+  Keyboard
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider } from '@react-native-firebase/auth';
@@ -61,16 +62,39 @@ const AuthenticationScreen = () => {
   }, []);
 
   const handleSignUp = async () => {
-    setError('');
-    if (password !== confirmPassword) return setError('Passwords do not match');
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-      const { uid } = userCredential.user;
-      await firestore().collection('users').doc(uid).set({ name: name.trim(), phone: phone.trim() || null, houses: [] });
-    } catch (e) {
-      setError(e.message);
-    }
-  };
+  setError('');
+  if (password !== confirmPassword) {
+    return setError('Passwords do not match');
+  }
+  try {
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email.trim(),
+      password
+    );
+    const uid = user.uid;
+
+    // write the profile fields
+    await firestore()
+      .collection('users')
+      .doc(uid)
+      .set({
+        name: name.trim(),
+        phone: phone.trim() || null,
+        houses: []
+      });
+
+    // read it right back
+    const snap = await firestore()
+      .collection('users')
+      .doc(uid)
+      .get();
+    console.log('✔️ user profile in Firestore:', snap.data());
+  } catch (e) {
+    console.error('❌ signup error:', e);
+    setError(e.message);
+  }
+};
 
   const handleSignIn = async () => {
     setError('');
@@ -97,7 +121,7 @@ const AuthenticationScreen = () => {
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         <Animated.Image
-          source={require('../assets/logo.png')}
+          source={require('../src/assets/logo.png')}
           style={[styles.logo, { transform: [{ scale: logoScale }, { translateY: logoTranslateY }] }]} 
         />
         {!animationDone && <Text style={styles.splashText}>Efficient Living Loading</Text>}
@@ -146,18 +170,24 @@ const AuthenticationScreen = () => {
                   style={styles.input}
                   placeholder="Password"
                   placeholderTextColor="#bbb"
+                  textContentType='oneTimeCode'
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
+                  blurOnSubmit={false}
+                  onSubmitEditing={() => Keyboard.dismiss()}
                 />
                 {isSigningUp && (
                   <TextInput
                     style={styles.input}
                     placeholder="Confirm Password"
+                    textContentType='oneTimeCode'
                     placeholderTextColor="#bbb"
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => Keyboard.dismiss()}
                   />
                 )}
 
@@ -189,7 +219,7 @@ const AuthenticationScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#000' },
+  safe: { flex: 1, backgroundColor: '#0A0F1F' },
   container: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' },
   logo: { width: SPLASH_LOGO_SIZE, height: SPLASH_LOGO_SIZE, resizeMode: 'contain' },
   splashText: { color: '#ae00ff', fontSize: 22, marginTop: 20, fontFamily: 'Montserrat-Bold' },
