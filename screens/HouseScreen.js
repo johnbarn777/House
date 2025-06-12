@@ -24,7 +24,7 @@ import {
 } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import { getApp } from '@react-native-firebase/app';
-import JoinHouseDialog from '../components/JoinHouseDialog';
+import JoinHouseDialog from '../src/components/JoinHouseDialog';
 
 const { width } = Dimensions.get('window');
 const circleDiameter = width * 2;

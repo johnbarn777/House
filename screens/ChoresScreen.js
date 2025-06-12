@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import useChores from '../hooks/useChores';
-import ChoreItem from '../components/ChoreItem';
-import FrequencyPickerModal from '../components/FrequencyPickerModal';
-import EditChoreModal from '../components/EditChoreModal';
+import useChores from '../src/hooks/useChores';
+import ChoreItem from '../src/components/ChoreItem';
+import FrequencyPickerModal from '../src/components/FrequencyPickerModal';
+import EditChoreModal from '../src/components/EditChoreModal';
 
 const TAB_BAR_HEIGHT = 80;
 
