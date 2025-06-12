@@ -1,27 +1,35 @@
 // SettingsScreen.js
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
+import {
+  SafeAreaView,
+  ActivityIndicator,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import { getApp } from '@react-native-firebase/app';
 
-// We’ve refactored the two major sections into separate components:
+// Custom hook for auth state
+import { useAuth } from '../src/hooks/useAuth';
+
+// Refactored components
 import ProfileCard from '../src/components/ProfileCard';
 import HousesCard from '../src/components/HousesCard';
 
 const { width } = Dimensions.get('window');
 
-const SettingsScreen = () => {
-  const auth = getAuth(getApp());
-  const user = auth.currentUser;
-  const uid = user.uid;
+const SettingsScreen = ({ navigation }) => {
+  const { user, initializing } = useAuth();
+  const auth = getAuth();
   const [houses, setHouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Listen for houses the user belongs to
+  // Always register effect hooks unconditionally
   useEffect(() => {
+    if (initializing || !user) return;
+    const uid = user.uid;
     const unsubscribe = firestore()
       .collection('houses')
       .where('members', 'array-contains', uid)
@@ -30,21 +38,36 @@ const SettingsScreen = () => {
           setHouses(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
           setLoading(false);
         },
-        e => {
+        () => {
           setError('Could not load houses.');
           setLoading(false);
         }
       );
     return () => unsubscribe();
-  }, [uid]);
+  }, [initializing, user]);
 
+  // Sign out action
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-    } catch (e) {
+    } catch {
       setError('Sign-out failed');
     }
   };
+
+  // Conditional rendering based on auth and data state
+  if (initializing) {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <ActivityIndicator size="large" color="#ae00ff" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!user) {
+    // Auth flow should take over via context/navigator
+    return null;
+  }
 
   if (loading) {
     return (
@@ -62,16 +85,15 @@ const SettingsScreen = () => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={20}
       >
-        {/* ProfileCard handles photo, name, phone, email/password changes, sign-out */}
         <ProfileCard
           user={user}
           onSignOut={handleSignOut}
+          error={error}
         />
-
-        {/* HousesCard handles listing & leaving houses */}
         <HousesCard
-          userId={uid}
+          userId={user.uid}
           houses={houses}
+          navigation={navigation}
         />
       </KeyboardAwareScrollView>
     </SafeAreaView>
