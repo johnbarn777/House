@@ -1,5 +1,5 @@
 // ChoresScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,7 +7,6 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
@@ -19,20 +18,13 @@ import ChoreItem from '../src/components/ChoreItem';
 import FrequencyPickerModal from '../src/components/FrequencyPickerModal';
 import EditChoreModal from '../src/components/EditChoreModal';
 
+import CommonStyles from '../src/styles/CommonStyles';
+
 const TAB_BAR_HEIGHT = 80;
 
-// Separated list component keyed by houseId to force re-mount on change
 const ChoresList = ({ houseId }) => {
   const insets = useSafeAreaInsets();
-  const {
-    chores,
-    loading,
-    addChore,
-    autoAssign,
-    unassignAll,
-    saveEdit,
-    deleteChore
-  } = useChores(houseId);
+  const { chores, loading, addChore, saveEdit, deleteChore } = useChores(houseId);
 
   const [newChore, setNewChore] = useState('');
   const [scheduleFreq, setScheduleFreq] = useState('Daily');
@@ -72,8 +64,8 @@ const ChoresList = ({ houseId }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.loadingContainer, { paddingTop: insets.top }]}>        
-        <Text style={styles.loadingText}>Loading chores...</Text>
+      <SafeAreaView style={[CommonStyles.safe, CommonStyles.centerContent, { paddingTop: insets.top }]}>        
+        <Text style={CommonStyles.loadingText}>Loading chores...</Text>
       </SafeAreaView>
     );
   }
@@ -86,29 +78,26 @@ const ChoresList = ({ houseId }) => {
         renderItem={({ item }) => (
           <ChoreItem chore={item} onEdit={handleOpenEdit} onDelete={handleDelete} />
         )}
-        style={styles.listContainer}
+        style={CommonStyles.listContainer}
       />
 
-      <View style={[styles.inputContainer, { marginBottom: insets.bottom || 16 }]}>          
+      <View style={[CommonStyles.inputContainer, { marginBottom: insets.bottom || 16 }]}>        
         <TextInput
-          style={styles.input}
+          style={[CommonStyles.input, CommonStyles.inputOverride]}
           placeholder="New chore"
           placeholderTextColor="#888"
           value={newChore}
           onChangeText={setNewChore}
         />
 
-        <FrequencyPickerModal
-          value={scheduleFreq}
-          onChange={setScheduleFreq}
-        >
-          <View style={[styles.input, styles.pickerToggle]}>
-            <Text style={styles.pickerToggleText}>{scheduleFreq}</Text>
+        <FrequencyPickerModal value={scheduleFreq} onChange={setScheduleFreq}>
+          <View style={[CommonStyles.input, CommonStyles.pickerToggle]}>
+            <Text style={CommonStyles.pickerToggleText}>{scheduleFreq}</Text>
           </View>
         </FrequencyPickerModal>
 
         <TextInput
-          style={[styles.input, styles.countInput]}
+          style={[CommonStyles.input, CommonStyles.countInput]}
           placeholder="Count"
           keyboardType="numeric"
           placeholderTextColor="#888"
@@ -116,7 +105,7 @@ const ChoresList = ({ houseId }) => {
           onChangeText={setScheduleCount}
         />
 
-        <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+        <TouchableOpacity style={CommonStyles.centerContent} onPress={handleAdd}>
           <Ionicons name="add-circle" size={36} color="#ae00ff" />
         </TouchableOpacity>
       </View>
@@ -143,41 +132,19 @@ const ChoresScreen = () => {
 
   if (!houseId) {
     return (
-      <SafeAreaView style={[styles.loadingContainer, { paddingTop: insets.top }]}>        
-        <Text style={styles.loadingText}>No houses available. Join or create one.</Text>
+      <SafeAreaView style={[CommonStyles.safe, CommonStyles.centerContent, { paddingTop: insets.top }]}>        
+        <Text style={CommonStyles.loadingText}>No houses available. Join or create one.</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom + TAB_BAR_HEIGHT }]}>      
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}
-      >
+    <SafeAreaView style={[CommonStyles.safe, { paddingBottom: insets.bottom + TAB_BAR_HEIGHT }]}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={CommonStyles.flex}>
         <ChoresList key={houseId} houseId={houseId} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  container: { flex: 1, backgroundColor: '#0A0F1F' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor:'#0A0F1F' },
-  loadingText: { color: '#fff', fontSize: 18 },
-  listContainer: { flex: 1, padding: 16 },
-  buttonRow: { flexDirection: 'row', justifyContent: 'space-around', margin: 16 },
-  autoButton: { backgroundColor: '#ae00ff', padding: 10, borderRadius: 8 },
-  autoButtonText: { color: '#fff', fontWeight: '600' },
-  unassignButton: { backgroundColor: '#555', padding: 10, borderRadius: 8 },
-  unassignButtonText: { color: '#fff', fontWeight: '600' },
-  inputContainer: { flexDirection: 'row', padding: 16, borderTopWidth: 1, borderColor: '#222', backgroundColor: '#000', alignItems: 'center' },
-  input: { flex: 1, height: 48, backgroundColor: '#262626', borderRadius: 24, paddingHorizontal: 16, color: '#fff', marginRight: 8 },
-  pickerToggle: { backgroundColor: '#262626', borderRadius: 24, justifyContent: 'center', paddingHorizontal: 16, marginRight: 8, height: 48 },
-  pickerToggleText: { color: '#fff' },
-  countInput: { width: 60, marginRight: 8 },
-  addButton: { justifyContent: 'center' }
-});
 
 export default ChoresScreen;
