@@ -22,9 +22,18 @@ import CommonStyles from '../src/styles/CommonStyles';
 
 const TAB_BAR_HEIGHT = 80;
 
+// Separated list component keyed by houseId to force re-mount on change
 const ChoresList = ({ houseId }) => {
   const insets = useSafeAreaInsets();
-  const { chores, loading, addChore, saveEdit, deleteChore } = useChores(houseId);
+  const {
+    chores,
+    loading,
+    addChore,
+    autoAssign,
+    unassignAll,
+    saveEdit,
+    deleteChore
+  } = useChores(houseId);
 
   const [newChore, setNewChore] = useState('');
   const [scheduleFreq, setScheduleFreq] = useState('Daily');
@@ -40,7 +49,7 @@ const ChoresList = ({ houseId }) => {
     const title = newChore.trim();
     const count = parseInt(scheduleCount, 10) || 1;
     if (!title) return;
-    addChore(houseId, title, { frequency: scheduleFreq, count });
+    addChore( title, { frequency: scheduleFreq, count });
     setNewChore('');
   };
 
@@ -55,7 +64,7 @@ const ChoresList = ({ houseId }) => {
   const handleSave = () => {
     if (!editingChore) return;
     const count = parseInt(editCount, 10) || 1;
-    saveEdit(houseId, editingChore.id, editTitle.trim(), { frequency: editFreq, count });
+    saveEdit( editingChore.id, editTitle.trim(), { frequency: editFreq, count });
     setEditModalVisible(false);
     setEditingChore(null);
   };
@@ -64,7 +73,13 @@ const ChoresList = ({ houseId }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={[CommonStyles.safe, CommonStyles.centerContent, { paddingTop: insets.top }]}>        
+      <SafeAreaView
+        style={[
+          CommonStyles.safe,
+          CommonStyles.centerContent,
+          { paddingTop: insets.top }
+        ]}
+      >
         <Text style={CommonStyles.loadingText}>Loading chores...</Text>
       </SafeAreaView>
     );
@@ -72,16 +87,40 @@ const ChoresList = ({ houseId }) => {
 
   return (
     <>
-      <FlatList
-        data={chores}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <ChoreItem chore={item} onEdit={handleOpenEdit} onDelete={handleDelete} />
-        )}
-        style={CommonStyles.listContainer}
-      />
+      {/* Action Buttons */}
+      <View style={CommonStyles.buttonRow}>
+        <TouchableOpacity style={CommonStyles.autoButton} onPress={autoAssign}>
+          <Text style={CommonStyles.autoButtonText}>Auto-Assign</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={CommonStyles.unassignButton} onPress={unassignAll}>
+          <Text style={CommonStyles.unassignButtonText}>Unassign All</Text>
+        </TouchableOpacity>
+      </View>
 
-      <View style={[CommonStyles.inputContainer, { marginBottom: insets.bottom || 16 }]}>        
+      {/* Chores List or Empty State */}
+      <View style={CommonStyles.listContainer}>
+        {chores.length > 0 ? (
+          <FlatList
+            data={chores}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <ChoreItem chore={item} onEdit={handleOpenEdit} onDelete={handleDelete} />
+            )}
+          />
+        ) : (
+          <View style={CommonStyles.emptyContainer}>
+            <Text style={CommonStyles.emptyText}>No chores yet. Add one!</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Input Row */}
+      <View
+        style={[
+          CommonStyles.inputContainer,
+          { marginBottom: insets.bottom || 16 }
+        ]}
+      >
         <TextInput
           style={[CommonStyles.input, CommonStyles.inputOverride]}
           placeholder="New chore"
@@ -110,6 +149,7 @@ const ChoresList = ({ houseId }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Edit Modal */}
       <EditChoreModal
         visible={editModalVisible}
         onClose={() => setEditModalVisible(false)}
@@ -132,15 +172,31 @@ const ChoresScreen = () => {
 
   if (!houseId) {
     return (
-      <SafeAreaView style={[CommonStyles.safe, CommonStyles.centerContent, { paddingTop: insets.top }]}>        
-        <Text style={CommonStyles.loadingText}>No houses available. Join or create one.</Text>
+      <SafeAreaView
+        style={[
+          CommonStyles.safe,
+          CommonStyles.centerContent,
+          { paddingTop: insets.top }
+        ]}
+      >
+        <Text style={CommonStyles.loadingText}>
+          No houses available. Join or create one.
+        </Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[CommonStyles.safe, { paddingBottom: insets.bottom + TAB_BAR_HEIGHT }]}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={CommonStyles.flex}>
+    <SafeAreaView
+      style={[
+        CommonStyles.safe,
+        { paddingBottom: insets.bottom + TAB_BAR_HEIGHT }
+      ]}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={CommonStyles.flex}
+      >
         <ChoresList key={houseId} houseId={houseId} />
       </KeyboardAvoidingView>
     </SafeAreaView>

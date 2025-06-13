@@ -55,6 +55,14 @@ export default StyleSheet.create({
   pickerToggle: { borderRadius: 24, justifyContent: 'center', paddingHorizontal: 16, marginRight: 8, height: 48 },
   pickerToggleText: { color: '#fff' },
   countInput: { width: 60, marginRight: 8 },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: 16 },
+  autoButton: { backgroundColor: '#ae00ff', padding: 10, borderRadius: 8 },
+  autoButtonText: { color: '#fff', fontSize: 16, fontFamily: 'Montserrat-Medium' },
+  unassignButton: { backgroundColor: '#555', padding: 10, borderRadius: 8 },
+  unassignButtonText: { color: '#fff', fontSize: 16, fontFamily: 'Montserrat-Medium' },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  emptyText: { color: '#888', fontSize: 16, fontFamily: 'Montserrat-Regular' },
+
 
   // Dialog-specific
   overlay: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
