@@ -1,4 +1,4 @@
-package com.package.house
+package com.house.app
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -311,7 +311,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.package.house;
+				PRODUCT_BUNDLE_IDENTIFIER = com.house.app;
 				PRODUCT_NAME = House;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -342,7 +342,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.package.house;
+				PRODUCT_BUNDLE_IDENTIFIER = com.house.app;
 				PRODUCT_NAME = House;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
