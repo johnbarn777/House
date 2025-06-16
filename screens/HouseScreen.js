@@ -1,5 +1,5 @@
 // HouseScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   SafeAreaView,
   View,
@@ -22,34 +22,59 @@ const TAB_BAR_HEIGHT = 40;
 
 const HouseScreen = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
-  const houses = useHouses();
+  const { houses, currentHouseId } = useHouses(); //houses = useHouses();
 
-  const paramId = route?.params?.houseId;
-  const fallbackId = houses.length > 0 ? houses[0].id : null;
-  const houseId = paramId || fallbackId;
-  const houseData = houses.find(h => h.id === houseId);
+  // track first render to avoid false alerts
+  const initialMount = useRef(true);
+  const initialDataCheck = useRef(true);
+
+  // Determine current house ID
+   const paramId    = route?.params?.houseId;
+  const houseId    = paramId || currentHouseId;
+  const houseData  = houses.find(h => h.id === houseId);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [chores, setChores] = useState([]);
 
+  // Navigation helper
+  const goToHouseList = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('HouseList');
+    }
+  };
+
+  // Alert if no house selected; skip if navigated with paramId or on initial mount
   useEffect(() => {
+    if (paramId) return;
+    if (initialMount.current) {
+      initialMount.current = false;
+      return;
+    }
     if (!houseId) {
       Alert.alert('No house selected', 'Please join or select a house.', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { text: 'OK', onPress: goToHouseList }
       ]);
     }
-  }, [houseId, navigation]);
+  }, [paramId, houseId]);
 
+  // Alert when user leaves the house; skip initial data
   useEffect(() => {
+    if (initialDataCheck.current) {
+      initialDataCheck.current = false;
+      return;
+    }
     if (houseId && houseData === undefined) {
       Alert.alert(
         "You've left this house",
         'Returning to your houses list.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
+        [{ text: 'OK', onPress: goToHouseList }]
       );
     }
-  }, [houseData, houseId, navigation]);
+  }, [houseData, houseId]);
 
+  // Subscribe to chores for the current house
   useEffect(() => {
     if (!houseId) return;
     const unsubscribe = firestore()
