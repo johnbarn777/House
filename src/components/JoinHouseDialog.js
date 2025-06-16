@@ -5,16 +5,16 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  StyleSheet,
   Modal,
   Alert,
-  ActivityIndicator,
+  ActivityIndicator
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
-// Helper to generate a 6-character alphanumeric code
+import CommonStyles from '../styles/CommonStyles';
+
 const generateHouseCode = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
@@ -24,14 +24,13 @@ const generateHouseCode = () => {
   return code;
 };
 
-const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
+const JoinHouseDialog = ({ modalVisible, setModalVisible }) => {
   const insets = useSafeAreaInsets();
   const [houseName, setHouseName] = useState('');
   const [houseCode, setHouseCode] = useState('');
   const [user, setUser] = useState(null);
   const [authLoaded, setAuthLoaded] = useState(false);
 
-  // Listen for auth state
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(u => {
       setUser(u);
@@ -56,27 +55,19 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
       const docRef = firestore().collection('houses').doc(newCode);
 
       try {
-        // .create will fail if the doc already exists
-        await docRef.create({
-          houseName: houseName.trim(),
-          members: [user.uid],
-        });
+        await docRef.create({ houseName: houseName.trim(), members: [user.uid] });
         created = true;
       } catch (e) {
-        // collision—try a new code
         if (e.code === 'already-exists' || e.message?.includes('already exists')) {
           continue;
         }
-        // any other error, rethrow
         console.error('Error creating house:', e);
         return Alert.alert('Error', 'Could not create house. Please try again.');
       }
     }
 
-    // success path
     Alert.alert('Success', `House created! Your house code is: ${newCode}`);
     setModalVisible(false);
-    setHouseData({ houseName: houseName.trim(), members: [user.uid], code: newCode });
   };
 
   const joinHouse = async () => {
@@ -91,12 +82,9 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
       const docRef = firestore().collection('houses').doc(houseCode);
       const doc = await docRef.get();
       if (doc.exists) {
-        await docRef.update({
-          members: firestore.FieldValue.arrayUnion(user.uid),
-        });
+        await docRef.update({ members: firestore.FieldValue.arrayUnion(user.uid) });
         Alert.alert('Success', 'Joined house successfully!');
         setModalVisible(false);
-        setHouseData({ ...doc.data(), code: houseCode });
       } else {
         Alert.alert('Error', 'House not found.');
       }
@@ -107,22 +95,15 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
-      presentationStyle="overFullScreen"
-      statusBarTranslucent
-    >
-      <View style={[styles.overlay, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <View style={[styles.modalView, { marginTop: insets.top + 20, marginBottom: insets.bottom + 20 }]}>
+    <Modal transparent animationType="slide" visible={modalVisible} onRequestClose={() => setModalVisible(false)} presentationStyle="overFullScreen" statusBarTranslucent>
+      <View style={[CommonStyles.overlay, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>        
+        <View style={[CommonStyles.card, { width: '90%', marginTop: insets.top + 20, marginBottom: insets.bottom + 20 }]}>          
           {!authLoaded ? (
-            <ActivityIndicator size="large" color="#6a0dad" />
+            <ActivityIndicator size="large" color="#ae00ff" />
           ) : (
             <>
               <TextInput
-                style={styles.input}
+                style={CommonStyles.input}
                 placeholder="Enter House Name"
                 placeholderTextColor="#888"
                 value={houseName}
@@ -130,15 +111,15 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
                 editable={!!user}
               />
               <TouchableOpacity
-                style={[styles.button, !user && styles.disabledButton]}
+                style={[CommonStyles.primaryButton, !user && CommonStyles.disabledButton]}
                 onPress={createHouse}
                 disabled={!user}
               >
-                <Text style={styles.buttonText}>CREATE HOUSE</Text>
+                <Text style={CommonStyles.buttonText}>CREATE HOUSE</Text>
               </TouchableOpacity>
 
               <TextInput
-                style={styles.input}
+                style={CommonStyles.input}
                 placeholder="Enter House Code"
                 placeholderTextColor="#888"
                 value={houseCode}
@@ -148,18 +129,18 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
                 editable={!!user}
               />
               <TouchableOpacity
-                style={[styles.button, !user && styles.disabledButton]}
+                style={[CommonStyles.primaryButton, !user && CommonStyles.disabledButton]}
                 onPress={joinHouse}
                 disabled={!user}
               >
-                <Text style={styles.buttonText}>JOIN HOUSE</Text>
+                <Text style={CommonStyles.buttonText}>JOIN HOUSE</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.button, styles.closeButton]}
+                style={[CommonStyles.primaryButton, CommonStyles.closeButton]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.buttonText}>CLOSE</Text>
+                <Text style={CommonStyles.buttonText}>CLOSE</Text>
               </TouchableOpacity>
             </>
           )}
@@ -168,38 +149,5 @@ const JoinHouseDialog = ({ modalVisible, setModalVisible, setHouseData }) => {
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0, bottom: 0, left: 0, right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center', alignItems: 'center'
-  },
-  modalView: {
-    width: '90%',
-    backgroundColor: 'black',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25, shadowRadius: 4, elevation: 5
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray', borderWidth: 1, borderRadius: 8,
-    marginBottom: 20, paddingHorizontal: 8,
-    color: 'white', backgroundColor: '#333', width: '100%'
-  },
-  button: {
-    backgroundColor: '#6a0dad',
-    borderRadius: 8,
-    paddingVertical: 10, paddingHorizontal: 20,
-    marginVertical: 10, width: '100%', alignItems: 'center'
-  },
-  disabledButton: { backgroundColor: '#444' },
-  closeButton: { backgroundColor: '#8B0000' },
-  buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' }
-});
 
 export default JoinHouseDialog;
