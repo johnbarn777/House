@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import { useHouses } from '../src/contexts/HousesContext';
 import useChores from '../src/hooks/useChores';
 import ChoreItem from '../src/components/ChoreItem';
@@ -49,8 +50,9 @@ const ChoresList = ({ houseId }) => {
     const title = newChore.trim();
     const count = parseInt(scheduleCount, 10) || 1;
     if (!title) return;
-    addChore( title, { frequency: scheduleFreq, count });
+    addChore(title, { frequency: scheduleFreq, count });
     setNewChore('');
+    setScheduleCount('1');
   };
 
   const handleOpenEdit = chore => {
@@ -64,12 +66,12 @@ const ChoresList = ({ houseId }) => {
   const handleSave = () => {
     if (!editingChore) return;
     const count = parseInt(editCount, 10) || 1;
-    saveEdit( editingChore.id, editTitle.trim(), { frequency: editFreq, count });
+    saveEdit(editingChore.id, editTitle.trim(), { frequency: editFreq, count });
     setEditModalVisible(false);
     setEditingChore(null);
   };
 
-  const handleDelete = id => deleteChore(houseId, id);
+  const handleDelete = id => deleteChore(id);
 
   if (loading) {
     return (
@@ -167,8 +169,8 @@ const ChoresList = ({ houseId }) => {
 
 const ChoresScreen = () => {
   const insets = useSafeAreaInsets();
-  const houses = useHouses();
-  const houseId = houses.length > 0 ? houses[0].id : null;
+  const { currentHouseId } = useHouses();
+  const houseId = currentHouseId;
 
   if (!houseId) {
     return (
@@ -180,7 +182,7 @@ const ChoresScreen = () => {
         ]}
       >
         <Text style={CommonStyles.loadingText}>
-          No houses available. Join or create one.
+          No house selected. Please pick a house.
         </Text>
       </SafeAreaView>
     );

@@ -1,91 +1,78 @@
+// src/hooks/useChores.js
 import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import {
   getFirestore,
   collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
   deleteDoc,
   serverTimestamp,
-  doc as docRef
+  doc as docRef,
+  orderBy,
+  query as firestoreQuery
 } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import { getApp } from '@react-native-firebase/app';
+import { useHouses } from '../contexts/HousesContext';
 
 export default function useChores() {
   const auth = getAuth(getApp());
   const user = auth.currentUser;
   const db = getFirestore(getApp());
 
+  // Get the active houseId and members from context
+  const { currentHouseId, houses } = useHouses();
+  const houseId = currentHouseId;
+  const members = houses.find(h => h.id === houseId)?.members || [];
+
   const [chores, setChores] = useState([]);
-  const [houseId, setHouseId] = useState(null);
-  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe;
-    const init = async () => {
-      try {
-        const housesQ = query(
-            collection(db, 'houses'),
-            where('members', 'array-contains', user.uid)
-        );
-        const snap = await getDocs(housesQ);
-        if (!snap.empty) {
-          const houseDoc = snap.docs[0];
-          const id = houseDoc.id;
-          setHouseId(id);
-          setMembers(houseDoc.data().members || []);
+    if (!houseId) {
+      setChores([]);
+      setLoading(false);
+      return;
+    }
 
-          const choresQ = query(
-              collection(db, 'houses', id, 'chores'),
-              orderBy('createdAt', 'desc')
-          );
-          unsubscribe = onSnapshot(
-              choresQ,
-              qs => {
-                setChores(qs.docs.map(d => ({ id: d.id, ...d.data() })));
-                setLoading(false);
-              },
-              err => {
-                console.error(err);
-                setLoading(false);
-              }
-          );
-        } else {
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error(error);
-        Alert.alert('Error', 'Could not load chores.');
+    setLoading(true);
+    const choresRef = collection(db, 'houses', houseId, 'chores');
+    const choresQuery = firestoreQuery(choresRef, orderBy('createdAt', 'desc'));
+
+    const unsubscribe = onSnapshot(
+      choresQuery,
+      snapshot => {
+        const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        setChores(list);
+        setLoading(false);
+      },
+      error => {
+        console.error('Chores subscription error:', error);
+        Alert.alert('Error', 'Could not subscribe to chores.');
         setLoading(false);
       }
-    };
-    init();
-    return () => unsubscribe && unsubscribe();
-  }, [user.uid]);
+    );
+
+    return () => unsubscribe();
+  }, [db, houseId]);
 
   const addChore = async (title, schedule) => {
-    const count = schedule.count || 1;
-    if (!title.trim() || !houseId) return;
+    if (!houseId || !title.trim()) return;
     try {
       await addDoc(
-          collection(db, 'houses', houseId, 'chores'),
-          {
-            title: title.trim(),
-            createdAt: serverTimestamp(),
-            createdBy: user.uid,
-            assignedTo: null,
-            schedule: { frequency: schedule.frequency, count }
-          }
+        collection(db, 'houses', houseId, 'chores'),
+        {
+          title: title.trim(),
+          createdAt: serverTimestamp(),
+          createdBy: user.uid,
+          assignedTo: null,
+          schedule: { frequency: schedule.frequency, count: schedule.count || 1 }
+        }
       );
     } catch (error) {
-      console.error(error);
+      console.error('Add chore error:', error);
       Alert.alert('Error', 'Could not add chore.');
     }
   };
@@ -95,15 +82,15 @@ export default function useChores() {
     const unassigned = chores.filter(c => !c.assignedTo);
     try {
       await Promise.all(
-          unassigned.map(c =>
-              updateDoc(
-                  docRef(db, 'houses', houseId, 'chores', c.id),
-                  { assignedTo: members[Math.floor(Math.random() * members.length)] }
-              )
+        unassigned.map(c =>
+          updateDoc(
+            docRef(db, 'houses', houseId, 'chores', c.id),
+            { assignedTo: members[Math.floor(Math.random() * members.length)] }
           )
+        )
       );
     } catch (error) {
-      console.error(error);
+      console.error('Auto-assign error:', error);
       Alert.alert('Error', 'Could not auto-assign chores.');
     }
   };
@@ -113,42 +100,42 @@ export default function useChores() {
     const assigned = chores.filter(c => c.assignedTo);
     try {
       await Promise.all(
-          assigned.map(c =>
-              updateDoc(
-                  docRef(db, 'houses', houseId, 'chores', c.id),
-                  { assignedTo: null }
-              )
+        assigned.map(c =>
+          updateDoc(
+            docRef(db, 'houses', houseId, 'chores', c.id),
+            { assignedTo: null }
           )
+        )
       );
     } catch (error) {
-      console.error(error);
+      console.error('Unassign all error:', error);
       Alert.alert('Error', 'Could not unassign chores.');
     }
   };
 
   const saveEdit = async (choreId, title, schedule) => {
-    const count = schedule.count || 1;
-    if (!choreId) return;
+    if (!houseId || !choreId) return;
     try {
       await updateDoc(
-          docRef(db, 'houses', houseId, 'chores', choreId),
-          {
-            title: title.trim(),
-            'schedule.frequency': schedule.frequency,
-            'schedule.count': count
-          }
+        docRef(db, 'houses', houseId, 'chores', choreId),
+        {
+          title: title.trim(),
+          'schedule.frequency': schedule.frequency,
+          'schedule.count': schedule.count || 1
+        }
       );
     } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Could not save changes.');
+      console.error('Save edit error:', error);
+      Alert.alert('Error', 'Could not save chore.');
     }
   };
 
   const deleteChore = async choreId => {
+    if (!houseId || !choreId) return;
     try {
       await deleteDoc(docRef(db, 'houses', houseId, 'chores', choreId));
     } catch (error) {
-      console.error(error);
+      console.error('Delete chore error:', error);
       Alert.alert('Error', 'Could not delete chore.');
     }
   };
@@ -156,8 +143,6 @@ export default function useChores() {
   return {
     chores,
     loading,
-    houseId,
-    members,
     addChore,
     autoAssign,
     unassignAll,
