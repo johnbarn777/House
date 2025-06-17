@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -9,6 +9,7 @@ import HouseScreen from './HouseScreen';
 import ChoresScreen from './ChoresScreen'; 
 import SplitScreen from './SplitScreen';
 import SettingsScreen from './SettingsScreen';  
+
 
 const Tab = createBottomTabNavigator();
 
@@ -26,7 +27,7 @@ const MainNavigator = () => (
         } else if (route.name === 'Settings') { 
           iconName = 'settings';    
         }  
-        return <Icon name={iconName} size={size} color={color} />; 
+        return <MaterialIcons name={iconName} size={size} color={color} />; 
       },  
       tabBarActiveTintColor: 'white',  
       tabBarInactiveTintColor: 'gray',  
