@@ -2,14 +2,21 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import { AppRegistry } from 'react-native';
 import {
   getMessaging,
   setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
 import App from './App';
-import {name as appName} from './app.json';
+import { name as appName } from './app.json';
 
+// ——— Icon font imports —————————————————————
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons       from 'react-native-vector-icons/Ionicons';
+//import FontAwesome    from 'react-native-vector-icons/FontAwesome';
+// …import any other icon sets you use here…
+
+// ——— Firebase background handler —————————————————
 setBackgroundMessageHandler(getMessaging(), async (message) => {
   setImmediate(() => {
     console.log(
@@ -28,10 +35,7 @@ setBackgroundMessageHandler(getMessaging(), async (message) => {
   //   body: 'Main body content of the notification',
   //   android: {
   //     channelId: 'misc',
-  //     // pressAction is needed if you want the notification to open the app when pressed
-  //     pressAction: {
-  //       id: 'default',
-  //     },
+  //     pressAction: { id: 'default' },
   //   },
   // });
 });
@@ -40,8 +44,20 @@ setBackgroundMessageHandler(getMessaging(), async (message) => {
 //   setImmediate(() => {
 //     console.log('This is running from notifee.onBacgroundEvent::setImmediate');
 //   });
-
 //   console.log('notifee.onBackgroundEvent with event: ' + JSON.stringify(event));
 // });
 
-AppRegistry.registerComponent(appName, () => App);
+// ——— Load all icon fonts, then register the app —————————————————
+Promise.all([
+  MaterialIcons.loadFont(),
+  Ionicons.loadFont(),
+  //FontAwesome.loadFont(),
+  // …
+])
+  .catch(err => {
+    console.warn('Icon font load failed, proceeding anyway', err);
+  })
+  .finally(() => {
+    AppRegistry.registerComponent(appName, () => App);
+  });
+

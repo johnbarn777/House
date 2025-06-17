@@ -11,7 +11,7 @@ import {
   Platform
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import { useHouses } from '../src/contexts/HousesContext';
 import useChores from '../src/hooks/useChores';
@@ -147,7 +147,7 @@ const ChoresList = ({ houseId }) => {
         />
 
         <TouchableOpacity style={CommonStyles.centerContent} onPress={handleAdd}>
-          <Ionicons name="add-circle" size={36} color="#ae00ff" />
+          <MaterialIcon name="add-circle" size={36} color="#ae00ff" />
         </TouchableOpacity>
       </View>
 
