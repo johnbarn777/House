@@ -23,7 +23,7 @@ import { getApp } from '@react-native-firebase/app';
 import {
   GoogleSignin,
   GoogleSigninButton,
-  statusCodes
+  statusCodes 
 } from '@react-native-google-signin/google-signin';
 
 import CommonStyles from '../src/styles/CommonStyles';
@@ -106,8 +106,6 @@ const AuthenticationScreen = () => {
           source={require('../src/assets/logo.png')}
           style={[CommonStyles.logo, { transform: [{ scale: logoScale }, { translateY: logoTranslateY }] }]}
         />
-        {!animationDone && <Text style={styles.splashText}>Efficient Living Loading</Text>}
-
         {!animationDone && <Text style={CommonStyles.splashText}>Efficient Living Loading</Text>}
 
         {animationDone && (
