@@ -62,6 +62,7 @@ export default StyleSheet.create({
   unassignButtonText: { color: '#fff', fontSize: 16, fontFamily: 'Montserrat-Medium' },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   emptyText: { color: '#888', fontSize: 16, fontFamily: 'Montserrat-Regular' },
+  cardTitle: { fontSize: 20, color: '#fff', fontWeight: '600', marginBottom: 10, fontFamily: 'Montserrat-Bold' },
 
 
   // Dialog-specific
