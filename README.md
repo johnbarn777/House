@@ -1,18 +1,19 @@
 ---
 
-# 🏡 **House Harmony: Great things and great houses are loading!**
+# 🏡 **House**
 
-Welcome to the ultimate house-sharing solution! Whether you're living with roommates or just managing household chores, **House Harmony** is here to bring harmony to your home. Say goodbye to chaos and hello to organized living!
+Welcome to House, a cross‑platform React Native app for keeping shared living spaces in sync. The project leverages Firebase for authentication and real‑time data so house members can collaborate effortlessly on household tasks.
 
 ---
 
 ## 🌟 Features
 
-- **User Authentication**: Secure sign-in and sign-up with Firebase.
-- **Interactive Dashboard**: Visualize your house with a customizable dashboard.
-- **Task Management**: Add, manage, and view tasks with ease.
-- **Expense Sharing**: Split bills and track house expenses.
-- **Smart Integrations**: Connect with house electronics for a seamless experience.
+- **Secure Authentication** – email/password and Google sign in powered by Firebase Auth.
+- **House Management** – create a house or join an existing one with a six‑digit code.
+- **Chore Tracking** – add chores, edit them and assign them to house members, with optional automatic assignments.
+- **Profile Controls** – update your name, phone number, profile photo and even change your email or password.
+- **Real‑time Updates** – all data is stored in Firestore, ensuring everyone sees the latest changes immediately.
+- **Cross‑platform** – built with React Native, runs on both iOS and Android.
 
 ---
 
@@ -26,26 +27,18 @@ Welcome to the ultimate house-sharing solution! Whether you're living with roomm
 
 ### Installation
 
-Clone the repository and install dependencies
+Clone the repository and install dependencies.
 
 ### Configuration
 
-Update the Firebase configuration in `firebase.js`: (Unnecessary at the moment, hardcoded API. SECURITY VULNERABILITY!!!)
+Create a Firebase project and copy your configuration values into the app before running it. The `@react-native-firebase/*` packages are already included.
 
-```javascript
-const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-auth-domain",
-  projectId: "your-project-id",
-  storageBucket: "your-storage-bucket",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id",
-};
-```
 ### Install Dependencies
 
-Requires Yarn 4.xx probably need to activate Corepack in Node.js
-s
+Requires Yarn 4.x. If you are using Node.js 18+, enable Corepack to manage Yarn versions:
+```bash
+corepack enable
+```
 ```bash
 yarn install
 ```
@@ -79,6 +72,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Great things and great houses are loading! Let's make living together a breeze. 🌟🏡**
+**Great houses are just the beginning—enjoy effortless shared living with House. 🌟🏡**
 
 ---
