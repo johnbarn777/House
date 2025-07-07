@@ -10,7 +10,7 @@ import {
   Alert
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import firestore from '@react-native-firebase/firestore';
 import { useHouses } from '../src/contexts/HousesContext';
 import JoinHouseDialog from '../src/components/JoinHouseDialog';
@@ -131,7 +131,7 @@ const HouseScreen = ({ route, navigation }) => {
         style={[CommonStyles.addButton, { bottom: insets.bottom + TAB_BAR_HEIGHT }]}
         onPress={() => setModalVisible(true)}
       >
-        <Icon name="plus" size={30} color="white" />
+        <MaterialIcon name="add" size={30} color="white" />
       </TouchableOpacity>
 
       <JoinHouseDialog

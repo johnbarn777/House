@@ -121,3 +121,4 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:18.4.1'
 
 }
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
