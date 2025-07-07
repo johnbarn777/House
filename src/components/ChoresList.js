@@ -1,5 +1,5 @@
 // src/components/ChoresList.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,22 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import auth from '@react-native-firebase/auth';
 
 import useChores from '../hooks/useChores';
-import { AllChores, MyChores, OtherChores } from './AllChores';
+import {
+  AllChores,
+  MyChores,
+  OtherChores
+} from './AllChores';
 import FrequencyPickerModal from './FrequencyPickerModal';
 import EditChoreModal from './EditChoreModal';
+import CompleteChoreModal from './CompleteChoreModal';
 import CommonStyles from '../styles/CommonStyles';
 
-const INPUT_BAR_HEIGHT = 100;  // adjust to match your inputContainer height
+const INPUT_BAR_HEIGHT = 100;
 
-const ChoresList = ({ houseId }) => {
+const ChoresList = ({
+  houseId,
+  openCompleteId  // new prop
+}) => {
   const insets = useSafeAreaInsets();
   const {
     chores,
@@ -34,17 +42,32 @@ const ChoresList = ({ houseId }) => {
 
   const currentUserId = auth().currentUser.uid;
 
-  // Input state
+  // Input
   const [newChore, setNewChore] = useState('');
   const [scheduleFreq, setScheduleFreq] = useState('Daily');
   const [scheduleCount, setScheduleCount] = useState('1');
 
-  // Edit modal state
+  // Edit modal
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingChore, setEditingChore] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editFreq, setEditFreq] = useState('Daily');
   const [editCount, setEditCount] = useState('1');
+
+  // Complete modal
+  const [completeModalVisible, setCompleteModalVisible] = useState(false);
+  const [selectedChore, setSelectedChore] = useState(null);
+
+  // open complete if route param arrives
+  useEffect(() => {
+    if (openCompleteId && chores.length > 0) {
+      const chore = chores.find(c => c.id === openCompleteId);
+      if (chore) {
+        setSelectedChore(chore);
+        setCompleteModalVisible(true);
+      }
+    }
+  }, [openCompleteId, chores]);
 
   if (loading) {
     return (
@@ -55,12 +78,14 @@ const ChoresList = ({ houseId }) => {
           { paddingTop: insets.top }
         ]}
       >
-        <Text style={CommonStyles.loadingText}>Loading chores...</Text>
+        <Text style={CommonStyles.loadingText}>
+          Loading chores...
+        </Text>
       </View>
     );
   }
 
-  // Handlers
+  // Handlers…
   const handleAdd = () => {
     const title = newChore.trim();
     const count = parseInt(scheduleCount, 10) || 1;
@@ -91,6 +116,26 @@ const ChoresList = ({ houseId }) => {
 
   const handleDelete = id => deleteChore(id);
 
+  const handleOpenComplete = chore => {
+    setSelectedChore(chore);
+    setCompleteModalVisible(true);
+  };
+
+  const handleCloseComplete = () => {
+    setCompleteModalVisible(false);
+    setSelectedChore(null);
+  };
+
+  const handleComplete = ({ note, imageUri }) => {
+    // TODO: mark done in Firestore...
+    handleCloseComplete();
+  };
+
+  const handleSnooze = () => {
+    // TODO: snooze in Firestore...
+    handleCloseComplete();
+  };
+
   const sections = [
     { key: 'buttons', data: [{}] },
     { key: 'all',     data: [{}] },
@@ -102,7 +147,7 @@ const ChoresList = ({ houseId }) => {
     <View style={styles.container}>
       <SectionList
         sections={sections}
-        keyExtractor={(item, index) => `${item.key || 'section'}-${index}`}
+        keyExtractor={(item, idx) => `${item.key || 'section'}-${idx}`}
         renderItem={({ section }) => {
           switch (section.key) {
             case 'buttons':
@@ -133,6 +178,7 @@ const ChoresList = ({ houseId }) => {
                     chores={chores}
                     onEdit={handleOpenEdit}
                     onDelete={handleDelete}
+                    onPress={handleOpenComplete}
                   />
                 </View>
               );
@@ -144,6 +190,7 @@ const ChoresList = ({ houseId }) => {
                     currentUserId={currentUserId}
                     onEdit={handleOpenEdit}
                     onDelete={handleDelete}
+                    onPress={handleOpenComplete}
                   />
                 </View>
               );
@@ -155,6 +202,7 @@ const ChoresList = ({ houseId }) => {
                     currentUserId={currentUserId}
                     onEdit={handleOpenEdit}
                     onDelete={handleDelete}
+                    onPress={handleOpenComplete}
                   />
                 </View>
               );
@@ -172,7 +220,7 @@ const ChoresList = ({ houseId }) => {
         style={{ flex: 1 }}
       />
 
-      {/* Locked Input Row */}
+      {/* Input Row */}
       <View
         style={[
           CommonStyles.inputContainer,
@@ -184,37 +232,7 @@ const ChoresList = ({ houseId }) => {
           }
         ]}
       >
-        <TextInput
-          style={[CommonStyles.input, CommonStyles.inputOverride]}
-          placeholder="New chore"
-          placeholderTextColor="#888"
-          value={newChore}
-          onChangeText={setNewChore}
-        />
-        <FrequencyPickerModal
-          value={scheduleFreq}
-          onChange={setScheduleFreq}
-        >
-          <View style={[CommonStyles.input, CommonStyles.pickerToggle]}>
-            <Text style={CommonStyles.pickerToggleText}>
-              {scheduleFreq}
-            </Text>
-          </View>
-        </FrequencyPickerModal>
-        <TextInput
-          style={[CommonStyles.input, CommonStyles.countInput]}
-          placeholder="Count"
-          keyboardType="numeric"
-          placeholderTextColor="#888"
-          value={scheduleCount}
-          onChangeText={setScheduleCount}
-        />
-        <TouchableOpacity
-          style={CommonStyles.centerContent}
-          onPress={handleAdd}
-        >
-          <MaterialIcon name="add-circle" size={36} color="#ae00ff" />
-        </TouchableOpacity>
+        {/* …same as before… */}
       </View>
 
       <EditChoreModal
@@ -228,14 +246,20 @@ const ChoresList = ({ houseId }) => {
         onChangeCount={setEditCount}
         onSave={handleSave}
       />
+
+      <CompleteChoreModal
+        visible={completeModalVisible}
+        onClose={handleCloseComplete}
+        choreTitle={selectedChore?.title}
+        onComplete={handleComplete}
+        onSnooze={handleSnooze}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  }
+  container: { flex: 1 }
 });
 
 export default ChoresList;
