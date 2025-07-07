@@ -11,18 +11,36 @@ import {
   serverTimestamp,
   doc as docRef,
   orderBy,
-  query as firestoreQuery
+  query as firestoreQuery,
+  Timestamp
 } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';
 import { getApp } from '@react-native-firebase/app';
 import { useHouses } from '../contexts/HousesContext';
+
+import { addDays, addWeeks, addMonths } from 'date-fns';
+
+// helper to compute nextDue based on a Date, frequency, and count
+function computeNextDue(lastDate, frequency, count) {
+  switch (frequency) {
+    case 'Daily':
+      return addDays(lastDate, count);
+    case 'Weekly':
+      return addWeeks(lastDate, count);
+    case 'Bi-weekly':
+      return addWeeks(lastDate, 2 * count);
+    case 'Monthly':
+      return addMonths(lastDate, count);
+    default:
+      return addDays(lastDate, count);
+  }
+}
 
 export default function useChores() {
   const auth = getAuth(getApp());
   const user = auth.currentUser;
   const db = getFirestore(getApp());
 
-  // Get the active houseId and members from context
   const { currentHouseId, houses } = useHouses();
   const houseId = currentHouseId;
   const members = houses.find(h => h.id === houseId)?.members || [];
@@ -60,7 +78,12 @@ export default function useChores() {
 
   const addChore = async (title, schedule) => {
     if (!houseId || !title.trim()) return;
+
     try {
+      // compute nextDue from now
+      const now = new Date();
+      const nextDueDate = computeNextDue(now, schedule.frequency, schedule.count || 1);
+
       await addDoc(
         collection(db, 'houses', houseId, 'chores'),
         {
@@ -68,7 +91,14 @@ export default function useChores() {
           createdAt: serverTimestamp(),
           createdBy: user.uid,
           assignedTo: null,
-          schedule: { frequency: schedule.frequency, count: schedule.count || 1 }
+          schedule: {
+            frequency: schedule.frequency,
+            count: schedule.count || 1
+          },
+          // initialize both fields
+          lastCompletedAt: Timestamp.fromDate(now),
+          nextDueAt: Timestamp.fromDate(nextDueDate),
+          // lastNotifiedAt will be undefined until we send a notification
         }
       );
     } catch (error) {
@@ -115,13 +145,19 @@ export default function useChores() {
 
   const saveEdit = async (choreId, title, schedule) => {
     if (!houseId || !choreId) return;
+
     try {
+      // for schedule edits, rebase nextDue to now
+      const now = new Date();
+      const nextDueDate = computeNextDue(now, schedule.frequency, schedule.count || 1);
+
       await updateDoc(
         docRef(db, 'houses', houseId, 'chores', choreId),
         {
           title: title.trim(),
           'schedule.frequency': schedule.frequency,
-          'schedule.count': schedule.count || 1
+          'schedule.count': schedule.count || 1,
+          nextDueAt: Timestamp.fromDate(nextDueDate)
         }
       );
     } catch (error) {

@@ -4,19 +4,17 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useUsers } from '../contexts/UsersContext';
 
-const ChoreItem = ({ chore, onEdit, onDelete }) => {
+const ChoreItem = ({ chore, onEdit, onDelete, onPress }) => {
   const users = useUsers();
 
-  // Normalize assignedTo to a UID string
+  // Normalize assignedTo to UID
   const assignedUid =
     typeof chore.assignedTo === 'string'
       ? chore.assignedTo
       : chore.assignedTo?.id;
 
   // Lookup display name
-  const assignedName = assignedUid
-    ? users[assignedUid]?.name
-    : null;
+  const assignedName = assignedUid ? users[assignedUid]?.name : null;
 
   const renderRightActions = () => (
     <View style={styles.actionsContainer}>
@@ -37,17 +35,22 @@ const ChoreItem = ({ chore, onEdit, onDelete }) => {
 
   return (
     <Swipeable renderRightActions={renderRightActions}>
-      <View style={styles.choreItem}>
-        <Text style={styles.choreText}>{chore.title}</Text>
-        <Text style={styles.assignedText}>
-          {assignedName
-            ? `Assigned to: ${assignedName}`
-            : 'Unassigned'}
-        </Text>
-        <Text style={styles.scheduleText}>
-          {`${chore.schedule.frequency} x ${chore.schedule.count}`}
-        </Text>
-      </View>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => onPress && onPress(chore)}
+      >
+        <View style={styles.choreItem}>
+          <Text style={styles.choreText}>{chore.title}</Text>
+          <Text style={styles.assignedText}>
+            {assignedName
+              ? `Assigned to: ${assignedName}`
+              : 'Unassigned'}
+          </Text>
+          <Text style={styles.scheduleText}>
+            {`${chore.schedule.frequency} x ${chore.schedule.count}`}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </Swipeable>
   );
 };
