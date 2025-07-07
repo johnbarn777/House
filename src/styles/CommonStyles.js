@@ -63,7 +63,15 @@ export default StyleSheet.create({
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   emptyText: { color: '#888', fontSize: 16, fontFamily: 'Montserrat-Regular' },
   cardTitle: { fontSize: 20, color: '#fff', fontWeight: '600', marginBottom: 10, fontFamily: 'Montserrat-Bold' },
-
+  //CompleteChoreModal-specific
+  CompleteChoreModalCard: { width: '90%', maxHeight: '80%' },
+  content: { paddingBottom: 16 },
+  noteInput: { height: 100, textAlignVertical: 'top'},
+  imageButton: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  imageButtonText: { marginLeft: 8, fontSize: 16 },
+  imagePreview: { width: '100%', height: 200, borderRadius: 12, marginBottom: 12 },
+  buttonGroup: { flexDirection: 'column' },
+  snoozeButton: { backgroundColor: '#555', marginTop: 8 },
 
   // Dialog-specific
   overlay: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },

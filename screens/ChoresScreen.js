@@ -2,10 +2,13 @@
 import React from 'react';
 import {
   SafeAreaView,
+  KeyboardAvoidingView,
   Platform,
-  KeyboardAvoidingView
+  Text,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRoute } from '@react-navigation/native';
 
 import { useHouses } from '../src/contexts/HousesContext';
 import ChoresList from '../src/components/ChoresList';
@@ -13,15 +16,15 @@ import CommonStyles from '../src/styles/CommonStyles';
 
 const TAB_BAR_HEIGHT = 80;
 
-/**
- * Screen wrapper for chores. Renders ChoresList and handles safe area.
- */
 const ChoresScreen = () => {
   const insets = useSafeAreaInsets();
   const { currentHouseId } = useHouses();
-  const houseId = currentHouseId;
+  const route = useRoute();
 
-  if (!houseId) {
+  // grab the param we passed in App.tsx
+  const openCompleteId = route.params?.openComplete;
+
+  if (!currentHouseId) {
     return (
       <SafeAreaView
         style={[
@@ -48,7 +51,11 @@ const ChoresScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={CommonStyles.flex}
       >
-        <ChoresList houseId={houseId} />
+        <ChoresList
+          key={currentHouseId}
+          houseId={currentHouseId}
+          openCompleteId={openCompleteId}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
