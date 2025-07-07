@@ -5,14 +5,14 @@ import ChoreItem from './ChoreItem';
 import CommonStyles from '../styles/CommonStyles';
 
 const { height: windowHeight } = Dimensions.get('window');
-const maxCardHeight = windowHeight * 0.66; // two-thirds
+const maxCardHeight = windowHeight * 0.66; // two thirds
 
 /**
- * Core card component that renders a list of chores.
+ * Base card for rendering chore lists.
  */
-function ChoreCard({ title, chores, onEdit, onDelete, onPress }) {
+function ChoreCard({ title, chores, onEdit, onDelete }) {
   return (
-    <View style={[CommonStyles.card, { maxHeight: maxCardHeight }]}>
+    <View style={[CommonStyles.card, { maxHeight: maxCardHeight }]}>  
       <Text style={CommonStyles.cardTitle}>{title}</Text>
       <FlatList
         data={chores}
@@ -28,7 +28,6 @@ function ChoreCard({ title, chores, onEdit, onDelete, onPress }) {
             chore={item}
             onEdit={() => onEdit(item)}
             onDelete={() => onDelete(item.id)}
-            onPress={() => onPress && onPress(item)}
           />
         )}
         ListEmptyComponent={
@@ -41,45 +40,25 @@ function ChoreCard({ title, chores, onEdit, onDelete, onPress }) {
   );
 }
 
-/** Shows all chores in the house */
-export function AllChores({ chores, onEdit, onDelete, onPress }) {
-  return (
-    <ChoreCard
-      title="All Chores"
-      chores={chores}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onPress={onPress}
-    />
-  );
+/**
+ * Shows all chores in the house.
+ */
+export function AllChores({ chores, onEdit, onDelete }) {
+  return <ChoreCard title="All Chores" chores={chores} onEdit={onEdit} onDelete={onDelete} />;
 }
 
-/** Shows only chores assigned to the current user */
-export function MyChores({ chores, currentUserId, onEdit, onDelete, onPress }) {
+/**
+ * Shows only chores assigned to the current user.
+ */
+export function MyChores({ chores, currentUserId, onEdit, onDelete }) {
   const myList = chores.filter(c => c.assignedTo === currentUserId);
-  return (
-    <ChoreCard
-      title="My Chores"
-      chores={myList}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onPress={onPress}
-    />
-  );
+  return <ChoreCard title="My Chores" chores={myList} onEdit={onEdit} onDelete={onDelete} />;
 }
 
-/** Shows chores assigned to other users */
-export function OtherChores({ chores, currentUserId, onEdit, onDelete, onPress }) {
-  const others = chores.filter(
-    c => c.assignedTo && c.assignedTo !== currentUserId
-  );
-  return (
-    <ChoreCard
-      title="Other Chores"
-      chores={others}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onPress={onPress}
-    />
-  );
+/**
+ * Shows chores assigned to other users.
+ */
+export function OtherChores({ chores, currentUserId, onEdit, onDelete }) {
+  const others = chores.filter(c => c.assignedTo && c.assignedTo !== currentUserId);
+  return <ChoreCard title="Other Chores" chores={others} onEdit={onEdit} onDelete={onDelete} />;
 }
