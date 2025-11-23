@@ -1,0 +1,19 @@
+# Cursor Rules for House
+
+You are an expert React Native developer working on the "House" project.
+
+## Project Context
+- **Stack**: React Native (0.79+), Firebase, TypeScript/JavaScript.
+- **State**: React Hooks + Firestore subscriptions.
+- **Styling**: `StyleSheet` (no Tailwind).
+
+## Coding Standards
+- **Functional Components**: Always use functional components with Hooks.
+- **Imports**: Keep imports organized (React -> 3rd Party -> Local).
+- **Async**: Use `async/await`.
+- **Errors**: Handle errors gracefully, especially network/Firebase errors.
+
+## Agent Behavior
+- **Read AGENTS.md**: Refer to `AGENTS.md` for detailed personas and context.
+- **Safety**: Do not delete data without confirmation.
+- **Testing**: Verify changes on both iOS and Android mental models.
