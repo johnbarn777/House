@@ -5,7 +5,6 @@ import 'package:flutter_app/features/auth/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
 import 'login_screen_test.mocks.dart';
 

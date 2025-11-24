@@ -1,19 +1,17 @@
-# House Flutter App
+# House App (Flutter)
 
-This is the Flutter implementation of the House application.
+A Flutter application for managing household chores and expenses, migrated from React Native.
 
-## Prerequisites
+## Features
 
--   [Flutter SDK](https://docs.flutter.dev/get-started/install) installed and in your PATH.
--   **iOS:** Xcode installed (macOS only).
--   **Android:** Android Studio and Android SDK installed.
--   **CocoaPods:** Installed (`sudo gem install cocoapods`).
+-   **Authentication:** Email/Password and Google Sign-In.
+-   **House Management:** Create or join houses using unique codes.
+-   **Chores:** Create, assign, and schedule chores (Daily, Weekly, etc.).
+-   **Notifications:** Push notifications (FCM) and local reminders for chores.
+-   **Settings:** Manage profile and house membership.
 
 ## Getting Started
 
-1.  **Navigate to the project directory:**
-    ```bash
-    cd flutter_app
     ```
 
 2.  **Install dependencies:**
@@ -21,10 +19,21 @@ This is the Flutter implementation of the House application.
     flutter pub get
     ```
 
-3.  **Install iOS pods (macOS only):**
+3.  **Configure Firebase:**
+    ```bash
+    # Activate flutterfire CLI (one-time setup)
+    dart pub global activate flutterfire_cli
+    
+    # Configure Firebase for your project
+    flutterfire configure --project=house-backend
+    ```
+
+4.  **Install iOS pods (macOS only):**
     ```bash
     cd ios && pod install && cd ..
     ```
+
+> **Note:** Google Sign-In is pre-configured for iOS. The URL scheme has been added to `ios/Runner/Info.plist`.
 
 ## Running the App
 

@@ -45,5 +45,25 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select a profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take a profile picture.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.2189201155-l8j4jlnidj708ea50jiqej5idfqvh5i2</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
