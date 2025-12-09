@@ -1,61 +1,63 @@
+import 'package:intl/intl.dart';
+
 class DateUtils {
-  static DateTime computeNextDue(
-    DateTime currentDue,
-    String frequency,
-    int interval,
-  ) {
-    // Ensure we are working with just the date part if needed,
-    // but for now we'll respect the time component as well.
+  static String formatTaskDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final taskDate = DateTime(date.year, date.month, date.day);
+    final difference = taskDate.difference(today).inDays;
 
-    switch (frequency) {
-      case 'Daily':
-        return currentDue.add(Duration(days: interval));
-      case 'Weekly':
-        return currentDue.add(Duration(days: 7 * interval));
-      case 'Bi-weekly':
-        return currentDue.add(Duration(days: 14 * interval));
-      case 'Monthly':
-        // Handle month overflow logic
-        // e.g., Jan 31 + 1 month -> Feb 28 (or 29)
-        int newMonth = currentDue.month + interval;
-        int newYear = currentDue.year;
-
-        while (newMonth > 12) {
-          newMonth -= 12;
-          newYear++;
-        }
-
-        // Determine the day. If the current day is 31, and new month has 30, use 30.
-        int newDay = currentDue.day;
-        int daysInNewMonth = _getDaysInMonth(newYear, newMonth);
-        if (newDay > daysInNewMonth) {
-          newDay = daysInNewMonth;
-        }
-
-        return DateTime(
-          newYear,
-          newMonth,
-          newDay,
-          currentDue.hour,
-          currentDue.minute,
-          currentDue.second,
-          currentDue.millisecond,
-          currentDue.microsecond,
-        );
-      default:
-        // Default to daily if unknown
-        return currentDue.add(Duration(days: interval));
+    if (difference == 0) {
+      return 'Today';
+    } else if (difference == 1) {
+      return 'Tomorrow';
+    } else if (difference == -1) {
+      return 'Yesterday';
+    } else if (difference > 1 && difference < 7) {
+      return DateFormat('EEEE').format(date); // Day name
+    } else {
+      return DateFormat('MMM d').format(date);
     }
   }
 
-  static int _getDaysInMonth(int year, int month) {
-    if (month == 2) {
-      if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
-        return 29;
-      }
-      return 28;
+  static bool isOverdue(DateTime date) {
+    if (date.isBefore(DateTime.now())) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final taskDate = DateTime(date.year, date.month, date.day);
+      return taskDate.isBefore(today);
     }
-    const daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    return daysInMonth[month];
+    return false;
+  }
+
+  static DateTime computeNextDue(
+    DateTime current,
+    String frequency,
+    int interval,
+  ) {
+    switch (frequency) {
+      case 'Daily':
+        return current.add(Duration(days: 1 * interval));
+      case 'Weekly':
+        return current.add(Duration(days: 7 * interval));
+      case 'Bi-weekly':
+        return current.add(Duration(days: 14 * interval));
+      case 'Monthly':
+        // Handle month rollover correctly
+        var year = current.year;
+        var month = current.month + interval;
+        while (month > 12) {
+          year++;
+          month -= 12;
+        }
+
+        // Handle end of month (e.g. Jan 31 -> Feb 28/29)
+        final daysInMonth = DateTime(year, month + 1, 0).day;
+        final day = current.day > daysInMonth ? daysInMonth : current.day;
+
+        return DateTime(year, month, day, current.hour, current.minute);
+      default:
+        return current;
+    }
   }
 }

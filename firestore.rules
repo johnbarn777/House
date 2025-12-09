@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is signed in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Houses Collection
+    match /houses/{houseId} {
+      allow create: if isSignedIn();
+      allow read, update: if isSignedIn() && request.auth.uid in resource.data.members;
+    }
+    
+    // Chores Collection
+    match /chores/{choreId} {
+      // Allow read/write if the user is a member of the house referenced by the chore
+      allow read, update, delete: if isSignedIn() && 
+        exists(/databases/$(database)/documents/houses/$(resource.data.houseId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/houses/$(resource.data.houseId)).data.members;
+      
+      allow create: if isSignedIn() &&
+        exists(/databases/$(database)/documents/houses/$(request.resource.data.houseId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/houses/$(request.resource.data.houseId)).data.members;
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

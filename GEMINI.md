@@ -7,11 +7,11 @@ Welcome, Agent. This document defines the context, personas, and standards for w
 **House** is a cross-platform React Native application designed to help house members collaborate on chores and shared living responsibilities.
 
 *   **Core Tech Stack**:
-    *   **Frontend**: React Native (v0.79+), TypeScript/JavaScript.
+    *   **Frontend**: Flutter (v3.10+), Dart.
     *   **Backend**: Firebase (Auth, Firestore, Functions).
-    *   **State Management**: React Hooks (Context API if needed, but primarily local state + Firestore subscriptions).
-    *   **Navigation**: React Navigation v7.
-    *   **Styling**: `StyleSheet` (Standard React Native).
+    *   **State Management**: Riverpod (v2.0+).
+    *   **Navigation**: GoRouter.
+    *   **Styling**: standard Flutter Widgets & Theming.
 
 *   **Key Features**:
     *   Real-time chore tracking.

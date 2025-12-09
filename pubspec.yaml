@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.2.1
   google_fonts: ^6.2.1
   flutter_slidable: ^3.1.0
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:

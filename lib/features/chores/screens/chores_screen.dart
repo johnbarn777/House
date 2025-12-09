@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/chores_provider.dart';
-import '../../../core/providers/houses_provider.dart';
-import '../../../core/utils/date_utils.dart' as app_date_utils;
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
+import '../providers/chores_provider.dart';
 import '../widgets/chore_list_item.dart';
+import '../widgets/chore_completion_dialog.dart';
 import 'add_edit_chore_screen.dart';
 
 class ChoresScreen extends ConsumerWidget {
@@ -14,144 +12,157 @@ class ChoresScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final choresAsync = ref.watch(choresProvider);
-    final currentUser = ref.watch(authStateProvider).value;
+    final choresAsyncValue = ref.watch(choresProvider);
+    final authState = ref.watch(authStateProvider);
+    final currentUser = authState.value;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
-      appBar: AppBar(
-        title: Text('Chores', style: AppTextStyles.cardTitle),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              final houseId = ref.read(currentHouseIdProvider);
-              if (houseId == null) return;
-
-              if (value == 'auto_assign') {
-                final house = await ref.read(currentHouseProvider.future);
-                if (house != null && house.members.isNotEmpty) {
-                  await ref
-                      .read(choresRepositoryProvider)
-                      .autoAssignChores(houseId, house.members);
-                }
-              } else if (value == 'unassign_all') {
-                await ref
-                    .read(choresRepositoryProvider)
-                    .unassignAllChores(houseId);
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'auto_assign',
-                child: Text('Auto-Assign Chores'),
-              ),
-              const PopupMenuItem(
-                value: 'unassign_all',
-                child: Text('Unassign All'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: choresAsync.when(
+      appBar: AppBar(title: const Text('Chores')),
+      body: choresAsyncValue.when(
         data: (chores) {
           if (chores.isEmpty) {
             return Center(
-              child: Text(
-                'No chores found. Add one to get started!',
-                style: AppTextStyles.bodySecondary,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    size: 64,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'All caught up!',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'No chores found.',
+                    style: TextStyle(color: AppColors.textTertiary),
+                  ),
+                ],
               ),
             );
           }
 
-          final myChores = chores
-              .where((c) => c.assignedTo == currentUser?.uid)
-              .toList();
-          final otherChores = chores
-              .where((c) => c.assignedTo != currentUser?.uid)
-              .toList();
+          // Sort chores: Overdue first, then by date
+          // (Already sorted by date in repo, but client side sort can ensure completed are at bottom)
+          final activeChores = chores.where((c) => !c.isCompleted).toList();
+          final completedChores = chores.where((c) => c.isCompleted).toList();
 
-          void onComplete(chore) async {
-            final houseId = ref.read(currentHouseIdProvider);
-            if (houseId == null) return;
-
-            final nextDue = app_date_utils.DateUtils.computeNextDue(
-              chore.nextDueAt,
-              chore.schedule.frequency,
-              chore.schedule.interval,
-            );
-
-            final updatedChore = chore.copyWith(nextDueAt: nextDue);
-            await ref
-                .read(choresRepositoryProvider)
-                .updateChore(houseId, updatedChore);
-          }
+          final sortedActive = [
+            ...activeChores,
+          ]; // Repo sort is likely strictly by date, we might want overdue first logic if not present.
+          // For now rely on repo sort.
 
           return ListView(
+            padding: const EdgeInsets.only(bottom: 80), // Space for FAB
             children: [
-              if (myChores.isNotEmpty) ...[
-                _buildSectionHeader(context, 'My Chores'),
-                ...myChores.map(
+              if (sortedActive.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'To Do',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ...sortedActive.map(
                   (chore) => ChoreListItem(
                     chore: chore,
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              AddEditChoreScreen(chore: chore),
+                          builder: (_) => AddEditChoreScreen(chore: chore),
                         ),
                       );
                     },
                     onEdit: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              AddEditChoreScreen(chore: chore),
+                          builder: (_) => AddEditChoreScreen(chore: chore),
                         ),
                       );
                     },
                     onDelete: () async {
-                      final houseId = ref.read(currentHouseIdProvider);
-                      if (houseId != null) {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Delete Chore?'),
+                          content: const Text('This cannot be undone.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: AppColors.error),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true) {
                         await ref
-                            .read(choresRepositoryProvider)
-                            .deleteChore(houseId, chore.id);
+                            .read(choreControllerProvider.notifier)
+                            .deleteChore(chore.id);
                       }
                     },
-                    onComplete: () => onComplete(chore),
+                    onCompletionChanged: (value) async {
+                      if (currentUser == null || value != true) return;
+
+                      final result = await showDialog<Map<String, String?>>(
+                        context: context,
+                        builder: (_) =>
+                            ChoreCompletionDialog(choreId: chore.id),
+                      );
+
+                      if (result != null) {
+                        await ref
+                            .read(choreControllerProvider.notifier)
+                            .completeChore(
+                              chore.id,
+                              currentUser.uid,
+                              photoUrl: result['photoUrl'],
+                              note: result['note'],
+                            );
+                      }
+                    },
                   ),
                 ),
               ],
-              if (otherChores.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Other Chores'),
-                ...otherChores.map(
+
+              if (completedChores.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Completed',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ...completedChores.map(
                   (chore) => ChoreListItem(
                     chore: chore,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AddEditChoreScreen(chore: chore),
-                        ),
-                      );
-                    },
-                    onEdit: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AddEditChoreScreen(chore: chore),
-                        ),
-                      );
-                    },
-                    onDelete: () async {
-                      final houseId = ref.read(currentHouseIdProvider);
-                      if (houseId != null) {
+                    onTap: () {},
+                    onCompletionChanged: (value) async {
+                      if (value == false) {
+                        // Un-complete
                         await ref
-                            .read(choresRepositoryProvider)
-                            .deleteChore(houseId, chore.id);
+                            .read(choreControllerProvider.notifier)
+                            .uncompleteChore(chore.id);
                       }
                     },
-                    onComplete: () => onComplete(chore),
                   ),
                 ),
               ],
@@ -163,19 +174,12 @@ class ChoresScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const AddEditChoreScreen()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddEditChoreScreen()));
         },
         child: const Icon(Icons.add),
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 }
