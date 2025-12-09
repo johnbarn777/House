@@ -11,6 +11,11 @@ service cloud.firestore {
     match /houses/{houseId} {
       allow create: if isSignedIn();
       allow read, update: if isSignedIn() && request.auth.uid in resource.data.members;
+      
+      // Fridge Items Sub-collection
+      match /fridge_items/{itemId} {
+        allow read, write: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/houses/$(houseId)).data.members;
+      }
     }
     
     // Chores Collection

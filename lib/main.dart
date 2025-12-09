@@ -9,6 +9,9 @@ import 'core/providers/auth_provider.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/houses/screens/house_screen.dart';
 import 'features/chores/screens/chores_screen.dart';
+import 'features/fridge/screens/fridge_screen.dart';
+import 'features/fridge/screens/add_edit_fridge_item_screen.dart';
+import 'features/fridge/models/fridge_item.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
@@ -48,10 +51,27 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const ChoresScreen(),
           ),
           GoRoute(
+            path: '/chores',
+            builder: (context, state) => const ChoresScreen(),
+          ),
+          GoRoute(
+            path: '/fridge',
+            builder: (context, state) => const FridgeScreen(),
+          ),
+          GoRoute(
             path: '/settings',
             builder: (context, state) => const SettingsScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/fridge/add',
+        builder: (context, state) => const AddEditFridgeItemScreen(),
+      ),
+      GoRoute(
+        path: '/fridge/edit',
+        builder: (context, state) =>
+            AddEditFridgeItemScreen(item: state.extra as FridgeItem),
       ),
     ],
     redirect: (context, state) {
@@ -123,6 +143,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'House'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Chores'),
+          BottomNavigationBarItem(icon: Icon(Icons.kitchen), label: 'Fridge'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
@@ -136,7 +157,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
     final location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/house')) return 0;
     if (location.startsWith('/chores')) return 1;
-    if (location.startsWith('/settings')) return 2;
+    if (location.startsWith('/fridge')) return 2;
+    if (location.startsWith('/settings')) return 3;
     return 0;
   }
 
@@ -149,6 +171,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
         context.go('/chores');
         break;
       case 2:
+        context.go('/fridge');
+        break;
+      case 3:
         context.go('/settings');
         break;
     }
