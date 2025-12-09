@@ -24,6 +24,11 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/houses/$(request.resource.data.houseId)) &&
         request.auth.uid in get(/databases/$(database)/documents/houses/$(request.resource.data.houseId)).data.members;
     }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
     
     // Default deny
     match /{document=**} {
