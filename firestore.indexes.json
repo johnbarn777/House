@@ -1,0 +1,19 @@
+{
+    "indexes": [
+        {
+            "collectionGroup": "chores",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "houseId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "dueDate",
+                    "order": "ASCENDING"
+                }
+            ]
+        }
+    ],
+    "fieldOverrides": []
+}

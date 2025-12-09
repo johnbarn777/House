@@ -18,7 +18,8 @@ A robust system designed to handle the complexities of chore distribution fairly
     - **Round-Robin Rotation**: Automatically rotate recurring chores (e.g., "Take out trash") between selected members to ensure fairness.
     - **Open-for-Grabs**: Post unassigned chores that any member can claim for extra points.
 - **Lifecycle Management**:
-    - **Mark Complete**: Simple swipe-to-complete actions with optional photo verification (upload a picture of the clean sink!).
+    - **Mark Complete**: Simple swipe-to-complete actions with optional **photo verification** and **completion notes** (e.g., upload a picture of the clean sink!).
+    - **Undo Completion**: Accidentally marked a task as done? Easily un-complete it to restore it to the active list.
     - **Delay/Snooze**: Life happens. Request a delay on a chore with a required "Reason" note (e.g., "Working late"). Housemates are notified and can approve/acknowledge.
     - **Edit & Delete**: Admins or task creators can modify details, due dates, or remove chores entirely.
 - **Notifications**:

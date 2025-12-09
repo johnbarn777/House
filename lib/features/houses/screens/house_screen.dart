@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/houses_provider.dart';
-import '../../../core/providers/chores_provider.dart';
+import '../../chores/providers/chores_provider.dart';
+import '../../chores/models/chore.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -186,18 +187,28 @@ class HouseScreen extends ConsumerWidget {
 
     return choresAsync.when(
       data: (allChores) {
-        // Filter chores for current house and sort by due date
-        final houseChores =
-            allChores.where((chore) => chore.houseId == houseId).toList()
-              ..sort((a, b) => a.nextDueAt.compareTo(b.nextDueAt));
+        // Filter chores for current house
+        // Note: choresProvider already filters by houseId via repository query
+        final houseChores = allChores.toList()
+          ..sort(
+            (a, b) => (a.dueDate ?? DateTime.now()).compareTo(
+              b.dueDate ?? DateTime.now(),
+            ),
+          );
 
         // Separate user's chores from others
         final myUpcomingChores = houseChores
-            .where((c) => c.assignedTo == currentUser?.uid)
+            .where(
+              (c) =>
+                  c.assignedToIds.contains(currentUser?.uid) && !c.isCompleted,
+            )
             .take(3)
             .toList();
         final otherUpcomingChores = houseChores
-            .where((c) => c.assignedTo != currentUser?.uid)
+            .where(
+              (c) =>
+                  !c.assignedToIds.contains(currentUser?.uid) && !c.isCompleted,
+            )
             .take(3)
             .toList();
 
@@ -212,7 +223,7 @@ class HouseScreen extends ConsumerWidget {
             children: [
               Text('Upcoming Chores', style: AppTextStyles.moduleTitle),
               const SizedBox(height: 12),
-              if (houseChores.isEmpty)
+              if (houseChores.where((c) => !c.isCompleted).isEmpty)
                 Text(
                   'No chores scheduled yet.',
                   style: AppTextStyles.bodySecondary,
@@ -242,10 +253,11 @@ class HouseScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(chore.title, style: AppTextStyles.body),
                           ),
-                          Text(
-                            DateFormat('MMM d').format(chore.nextDueAt),
-                            style: AppTextStyles.caption,
-                          ),
+                          if (chore.dueDate != null)
+                            Text(
+                              DateFormat('MMM d').format(chore.dueDate!),
+                              style: AppTextStyles.caption,
+                            ),
                         ],
                       ),
                     ),
@@ -280,10 +292,11 @@ class HouseScreen extends ConsumerWidget {
                               style: AppTextStyles.bodySecondary,
                             ),
                           ),
-                          Text(
-                            DateFormat('MMM d').format(chore.nextDueAt),
-                            style: AppTextStyles.caption,
-                          ),
+                          if (chore.dueDate != null)
+                            Text(
+                              DateFormat('MMM d').format(chore.dueDate!),
+                              style: AppTextStyles.caption,
+                            ),
                         ],
                       ),
                     ),
