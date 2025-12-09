@@ -2,6 +2,38 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum RepeatSchedule { none, daily, weekly, monthly }
 
+class SnoozeRecord {
+  final DateTime snoozeDate;
+  final DateTime originalDueDate;
+  final DateTime newDueDate;
+  final String reason;
+
+  const SnoozeRecord({
+    required this.snoozeDate,
+    required this.originalDueDate,
+    required this.newDueDate,
+    required this.reason,
+  });
+
+  factory SnoozeRecord.fromMap(Map<String, dynamic> map) {
+    return SnoozeRecord(
+      snoozeDate: (map['snoozeDate'] as Timestamp).toDate(),
+      originalDueDate: (map['originalDueDate'] as Timestamp).toDate(),
+      newDueDate: (map['newDueDate'] as Timestamp).toDate(),
+      reason: map['reason'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'snoozeDate': Timestamp.fromDate(snoozeDate),
+      'originalDueDate': Timestamp.fromDate(originalDueDate),
+      'newDueDate': Timestamp.fromDate(newDueDate),
+      'reason': reason,
+    };
+  }
+}
+
 class Chore {
   final String id;
   final String houseId;
@@ -15,6 +47,7 @@ class Chore {
   final String? photoUrl;
   final String? completionNote;
   final RepeatSchedule repeatSchedule;
+  final List<SnoozeRecord> snoozeHistory;
 
   const Chore({
     required this.id,
@@ -29,6 +62,7 @@ class Chore {
     this.photoUrl,
     this.completionNote,
     this.repeatSchedule = RepeatSchedule.none,
+    this.snoozeHistory = const [],
   });
 
   factory Chore.fromFirestore(DocumentSnapshot doc) {
@@ -49,6 +83,11 @@ class Chore {
         (e) => e.name == (data['repeatSchedule'] ?? 'none'),
         orElse: () => RepeatSchedule.none,
       ),
+      snoozeHistory:
+          (data['snoozeHistory'] as List<dynamic>?)
+              ?.map((e) => SnoozeRecord.fromMap(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -67,6 +106,7 @@ class Chore {
       'photoUrl': photoUrl,
       'completionNote': completionNote,
       'repeatSchedule': repeatSchedule.name,
+      'snoozeHistory': snoozeHistory.map((e) => e.toMap()).toList(),
     };
   }
 
@@ -83,6 +123,7 @@ class Chore {
     String? photoUrl,
     String? completionNote,
     RepeatSchedule? repeatSchedule,
+    List<SnoozeRecord>? snoozeHistory,
   }) {
     return Chore(
       id: id ?? this.id,
@@ -97,6 +138,7 @@ class Chore {
       photoUrl: photoUrl ?? this.photoUrl,
       completionNote: completionNote ?? this.completionNote,
       repeatSchedule: repeatSchedule ?? this.repeatSchedule,
+      snoozeHistory: snoozeHistory ?? this.snoozeHistory,
     );
   }
 }

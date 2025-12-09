@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../providers/chores_provider.dart';
 import '../widgets/chore_list_item.dart';
 import '../widgets/chore_completion_dialog.dart';
+import '../widgets/snooze_chore_dialog.dart';
 import 'add_edit_chore_screen.dart';
 
 class ChoresScreen extends ConsumerWidget {
@@ -114,6 +115,25 @@ class ChoresScreen extends ConsumerWidget {
                         await ref
                             .read(choreControllerProvider.notifier)
                             .deleteChore(chore.id);
+                      }
+                    },
+                    onSnooze: () async {
+                      if (chore.dueDate == null) return;
+
+                      final result = await showDialog<Map<String, dynamic>>(
+                        context: context,
+                        builder: (_) =>
+                            SnoozeChoreDialog(currentDueDate: chore.dueDate!),
+                      );
+
+                      if (result != null) {
+                        await ref
+                            .read(choreControllerProvider.notifier)
+                            .snoozeChore(
+                              chore.id,
+                              result['date'] as DateTime,
+                              result['reason'] as String,
+                            );
                       }
                     },
                     onCompletionChanged: (value) async {

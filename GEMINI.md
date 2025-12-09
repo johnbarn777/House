@@ -87,4 +87,4 @@ Adopt the appropriate persona based on your assigned task.
 2.  **Plan**: Decide which persona fits best.
 3.  **Implement**: Write code following the standards.
 4.  **Verify**: Check if the changes meet the requirements and don't introduce regressions.
-5.  **Document**: Update `README.md` if there are any breaking changes or new setup steps.
+5.  **Document**: Update `README.md` of any changes made.

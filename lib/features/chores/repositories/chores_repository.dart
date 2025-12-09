@@ -94,4 +94,30 @@ class ChoresRepository {
       'completionNote': FieldValue.delete(),
     });
   }
+
+  Future<void> snoozeChore(
+    String choreId,
+    DateTime newDueDate,
+    String reason,
+  ) async {
+    final docRef = _firestore.collection('chores').doc(choreId);
+    final docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) return;
+
+    final chore = Chore.fromFirestore(docSnapshot);
+
+    // Create Snooze Record
+    final record = SnoozeRecord(
+      snoozeDate: DateTime.now(),
+      originalDueDate: chore.dueDate ?? DateTime.now(), // Fallback if none
+      newDueDate: newDueDate,
+      reason: reason,
+    );
+
+    await docRef.update({
+      'dueDate': Timestamp.fromDate(newDueDate),
+      'snoozeHistory': FieldValue.arrayUnion([record.toMap()]),
+    });
+  }
 }

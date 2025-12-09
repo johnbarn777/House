@@ -9,17 +9,19 @@ import '../models/chore.dart';
 class ChoreListItem extends ConsumerWidget {
   final Chore chore;
   final VoidCallback? onTap;
+  final ValueChanged<bool?>? onCompletionChanged;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
-  final ValueChanged<bool?>? onCompletionChanged;
+  final VoidCallback? onSnooze;
 
   const ChoreListItem({
     super.key,
     required this.chore,
     this.onTap,
+    this.onCompletionChanged,
     this.onEdit,
     this.onDelete,
-    this.onCompletionChanged,
+    this.onSnooze,
   });
 
   @override
@@ -30,35 +32,49 @@ class ChoreListItem extends ConsumerWidget {
         !chore.isCompleted;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: Slidable(
         key: ValueKey(chore.id),
+        startActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          children: [
+            if (onDelete != null)
+              SlidableAction(
+                onPressed: (_) => onDelete!(),
+                backgroundColor: AppColors.error,
+                foregroundColor: Colors.white,
+                icon: Icons.delete,
+                label: 'Delete',
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(12),
+                ),
+              ),
+          ],
+        ),
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           children: [
-            SlidableAction(
-              onPressed: (_) => onEdit?.call(),
-              backgroundColor: AppColors.editGray,
-              foregroundColor: Colors.white,
-              icon: Icons.edit,
-              label: 'Edit',
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(12),
+            if (onSnooze != null &&
+                !chore.isCompleted) // Only snoozable if not completed
+              SlidableAction(
+                onPressed: (_) => onSnooze!(),
+                backgroundColor: AppColors.warning,
+                foregroundColor: Colors.white,
+                icon: Icons.access_time, // Snooze icon
+                label: 'Snooze',
+                // No border radius on left side of this pane usually, or shared if multiple
               ),
-            ),
-            SlidableAction(
-              onPressed: (_) {
-                // Confirm delete logic could be here, but for now just call callback
-                onDelete?.call();
-              },
-              backgroundColor: AppColors.deleteRed,
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-              label: 'Delete',
-              borderRadius: const BorderRadius.horizontal(
-                right: Radius.circular(12),
+            if (onEdit != null)
+              SlidableAction(
+                onPressed: (_) => onEdit!(),
+                backgroundColor: AppColors.primaryPurple,
+                foregroundColor: Colors.white,
+                icon: Icons.edit,
+                label: 'Edit',
+                borderRadius: const BorderRadius.horizontal(
+                  right: Radius.circular(12),
+                ),
               ),
-            ),
           ],
         ),
         child: InkWell(

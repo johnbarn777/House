@@ -63,6 +63,19 @@ class ChoreController extends AsyncNotifier<void> {
       () => ref.read(choresRepositoryProvider).uncompleteChore(choreId),
     );
   }
+
+  Future<void> snoozeChore(
+    String choreId,
+    DateTime newDueDate,
+    String reason,
+  ) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref
+          .read(choresRepositoryProvider)
+          .snoozeChore(choreId, newDueDate, reason),
+    );
+  }
 }
 
 final choreControllerProvider = AsyncNotifierProvider<ChoreController, void>(

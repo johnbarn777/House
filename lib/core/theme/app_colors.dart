@@ -20,8 +20,9 @@ class AppColors {
   static const textMuted = Color(0xFF555555);
 
   // Status & Actions
-  static const error = Color(0xFFFF4D4D);
-  static const errorAlt = Color(0xFFFF5252);
+  static const Color error = Color(0xFFE57373);
+  static const Color warning = Color(0xFFFFA726); // Orange for Snooze
+  static const Color success = Color(0xFF81C784);
   static const deleteRed = Color(0xFF8B0000);
   static const editGray = Color(0xFFAAAAAA);
   static const disabled = Color(0xFF444444);
