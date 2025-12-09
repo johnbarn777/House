@@ -55,12 +55,30 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
       return;
     }
 
+    // Validation: One-time chores must have a due date
+    if (_repeatSchedule == RepeatSchedule.none && _selectedDate == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a due date or repeat schedule'),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Default to Today for repeating chores if no date selected
+    DateTime? finalDueDate = _selectedDate;
+    if (_repeatSchedule != RepeatSchedule.none && finalDueDate == null) {
+      finalDueDate = DateTime.now();
+    }
+
     final newChore = Chore(
       id: widget.chore?.id ?? '', // ID is ignored on add, used on update
       houseId: houseId,
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
-      dueDate: _selectedDate,
+      dueDate: finalDueDate,
       repeatSchedule: _repeatSchedule,
       assignedToIds:
           widget.chore?.assignedToIds ?? [], // Keep existing assignees for now

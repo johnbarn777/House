@@ -35,14 +35,14 @@ class DateUtils {
     String frequency,
     int interval,
   ) {
-    switch (frequency) {
-      case 'Daily':
+    switch (frequency.toLowerCase()) {
+      case 'daily':
         return current.add(Duration(days: 1 * interval));
-      case 'Weekly':
+      case 'weekly':
         return current.add(Duration(days: 7 * interval));
-      case 'Bi-weekly':
+      case 'bi-weekly':
         return current.add(Duration(days: 14 * interval));
-      case 'Monthly':
+      case 'monthly':
         // Handle month rollover correctly
         var year = current.year;
         var month = current.month + interval;
