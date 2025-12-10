@@ -7,6 +7,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import 'package:flutter_app/features/houses/widgets/join_house_dialog.dart';
+import '../../house_notes/widgets/house_notes_module.dart';
 import 'package:intl/intl.dart';
 
 class HouseScreen extends ConsumerWidget {
@@ -136,6 +137,10 @@ class HouseScreen extends ConsumerWidget {
 
                       // Upcoming Chores Module
                       _buildUpcomingChoresModule(ref, currentHouse.id),
+                      const SizedBox(height: 16),
+
+                      // House Notes Module
+                      const HouseNotesModule(),
                       const SizedBox(height: 16),
 
                       // Members Module
