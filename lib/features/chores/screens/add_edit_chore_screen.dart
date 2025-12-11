@@ -119,7 +119,7 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: const TextStyle(color: AppColors.textInk),
                 decoration: const InputDecoration(
                   labelText: 'Title',
                   hintText: 'What needs to be done?',
@@ -134,7 +134,7 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: const TextStyle(color: AppColors.textInk),
                 decoration: const InputDecoration(
                   labelText: 'Description (Optional)',
                   hintText: 'Add details...',
@@ -157,9 +157,9 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
                       return Theme(
                         data: ThemeData.dark().copyWith(
                           colorScheme: const ColorScheme.dark(
-                            primary: AppColors.primaryPurple,
+                            primary: AppColors.primarySea,
                             onPrimary: Colors.white,
-                            surface: AppColors.cardDark,
+                            surface: AppColors.surfaceWood,
                             onSurface: Colors.white,
                           ),
                         ),
@@ -177,14 +177,14 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.inputBg,
+                    color: AppColors.backgroundParchment,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.calendar_today,
-                        color: AppColors.textSecondary,
+                        color: AppColors.textParchment,
                       ),
                       const SizedBox(width: 12),
                       Text(
@@ -194,8 +194,8 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
                         style: GoogleFonts.montserrat(
                           fontSize: 16,
                           color: _selectedDate == null
-                              ? AppColors.textSecondary
-                              : AppColors.textPrimary,
+                              ? AppColors.textParchment
+                              : AppColors.textInk,
                         ),
                       ),
                     ],
@@ -208,12 +208,12 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
               // Repeat Schedule Dropdown
               DropdownButtonFormField<RepeatSchedule>(
                 value: _repeatSchedule,
-                dropdownColor: AppColors.cardDark,
+                dropdownColor: AppColors.surfaceWood,
                 decoration: const InputDecoration(
                   labelText: 'Repeat',
                   prefixIcon: Icon(
                     Icons.repeat,
-                    color: AppColors.textSecondary,
+                    color: AppColors.textParchment,
                   ),
                 ),
                 items: RepeatSchedule.values.map((schedule) {
@@ -221,7 +221,7 @@ class _AddEditChoreScreenState extends ConsumerState<AddEditChoreScreen> {
                     value: schedule,
                     child: Text(
                       schedule.name.toUpperCase(),
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: const TextStyle(color: AppColors.textInk),
                     ),
                   );
                 }).toList(),

@@ -15,7 +15,8 @@ import 'features/fridge/models/fridge_item.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
-import 'core/theme/app_colors.dart';
+
+import 'core/widgets/command_dock.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -134,19 +135,18 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Extend body behind the dock
     return Scaffold(
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.tabBarBg,
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (index) => _onItemTapped(index, context),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'House'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Chores'),
-          BottomNavigationBarItem(icon: Icon(Icons.kitchen), label: 'Fridge'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+      extendBody: true,
+      body: Stack(
+        children: [
+          child,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: CommandDock(
+              selectedIndex: _calculateSelectedIndex(context),
+              onItemSelected: (index) => _onItemTapped(index, context),
+            ),
           ),
         ],
       ),

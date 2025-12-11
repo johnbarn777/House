@@ -74,7 +74,7 @@ class _ChoreCompletionDialogState extends ConsumerState<ChoreCompletionDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.backgroundParchment,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -113,7 +113,7 @@ class _ChoreCompletionDialogState extends ConsumerState<ChoreCompletionDialog> {
                     onPressed: () => _pickImage(ImageSource.camera),
                     icon: const Icon(
                       Icons.camera_alt,
-                      color: AppColors.primaryPurple,
+                      color: AppColors.primarySea,
                     ),
                     label: Text('Camera', style: AppTextStyles.body),
                   ),
@@ -121,7 +121,7 @@ class _ChoreCompletionDialogState extends ConsumerState<ChoreCompletionDialog> {
                     onPressed: () => _pickImage(ImageSource.gallery),
                     icon: const Icon(
                       Icons.photo_library,
-                      color: AppColors.primaryPurple,
+                      color: AppColors.primarySea,
                     ),
                     label: Text('Gallery', style: AppTextStyles.body),
                   ),
@@ -135,9 +135,9 @@ class _ChoreCompletionDialogState extends ConsumerState<ChoreCompletionDialog> {
               controller: _noteController,
               decoration: InputDecoration(
                 hintText: 'Add a note (optional)...',
-                hintStyle: AppTextStyles.bodySecondary,
+                hintStyle: AppTextStyles.bodyLight,
                 filled: true,
-                fillColor: AppColors.cardDarkAlt,
+                fillColor: AppColors.surfaceWood,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -158,13 +158,13 @@ class _ChoreCompletionDialogState extends ConsumerState<ChoreCompletionDialog> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Cancel', style: AppTextStyles.bodySecondary),
+                    child: Text('Cancel', style: AppTextStyles.bodyLight),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryPurple,
+                      backgroundColor: AppColors.primarySea,
                       foregroundColor: Colors.white,
                     ),
                     child: const Text('Complete'),

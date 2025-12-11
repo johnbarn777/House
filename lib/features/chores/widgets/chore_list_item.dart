@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/parchment_card.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/date_utils.dart' as app_date_utils;
 import '../models/chore.dart';
@@ -42,11 +43,11 @@ class ChoreListItem extends ConsumerWidget {
               SlidableAction(
                 onPressed: (_) => onDelete!(),
                 backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textLight,
                 icon: Icons.delete,
-                label: 'Delete',
+                label: 'Scuttle',
                 borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(12),
+                  left: Radius.circular(4),
                 ),
               ),
           ],
@@ -54,55 +55,59 @@ class ChoreListItem extends ConsumerWidget {
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           children: [
-            if (onSnooze != null &&
-                !chore.isCompleted) // Only snoozable if not completed
+            if (onSnooze != null && !chore.isCompleted)
               SlidableAction(
                 onPressed: (_) => onSnooze!(),
                 backgroundColor: AppColors.warning,
-                foregroundColor: Colors.white,
-                icon: Icons.access_time, // Snooze icon
-                label: 'Snooze',
-                // No border radius on left side of this pane usually, or shared if multiple
+                foregroundColor: AppColors.textInk,
+                icon: Icons.access_time,
+                label: 'Delay',
               ),
             if (onEdit != null)
               SlidableAction(
                 onPressed: (_) => onEdit!(),
-                backgroundColor: AppColors.primaryPurple,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.success,
+                foregroundColor: AppColors.textLight,
                 icon: Icons.edit,
-                label: 'Edit',
+                label: 'Amend',
                 borderRadius: const BorderRadius.horizontal(
-                  right: Radius.circular(12),
+                  right: Radius.circular(4),
                 ),
               ),
           ],
         ),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
+          child: ParchmentCard(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardDark,
-              borderRadius: BorderRadius.circular(16),
-              border: isOverdue
-                  ? Border.all(color: AppColors.error, width: 1)
-                  : null,
-            ),
             child: Row(
               children: [
-                // Checkbox
-                Transform.scale(
-                  scale: 1.2,
-                  child: Checkbox(
-                    value: chore.isCompleted,
-                    onChanged: onCompletionChanged,
-                    activeColor: AppColors.primaryPurple,
-                    checkColor: Colors.white,
-                    side: const BorderSide(color: AppColors.textSecondary),
-                    shape: RoundedRectangleBorder(
+                // Custom Checkbox
+                GestureDetector(
+                  onTap: () => onCompletionChanged?.call(!chore.isCompleted),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: chore.isCompleted
+                          ? AppColors.primarySea
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: chore.isCompleted
+                            ? AppColors.primarySea
+                            : AppColors.textInk,
+                        width: 2,
+                      ),
                     ),
+                    child: chore.isCompleted
+                        ? const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: AppColors.secondaryGold,
+                          ) // X mark like a treasure map
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -114,15 +119,17 @@ class ChoreListItem extends ConsumerWidget {
                     children: [
                       Text(
                         chore.title,
-                        style: GoogleFonts.montserrat(
+                        style: AppTextStyles.body.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: chore.isCompleted
-                              ? AppColors.textMuted
-                              : AppColors.textPrimary,
+                              ? AppColors.textParchment
+                              : AppColors.textInk,
                           decoration: chore.isCompleted
                               ? TextDecoration.lineThrough
                               : null,
+                          decorationColor: AppColors.error, // Red slash
+                          decorationThickness: 2,
                         ),
                       ),
                       if (chore.dueDate != null) ...[
@@ -131,21 +138,20 @@ class ChoreListItem extends ConsumerWidget {
                           children: [
                             Icon(
                               Icons.calendar_today,
-                              size: 14,
+                              size: 12,
                               color: isOverdue
                                   ? AppColors.error
-                                  : AppColors.textSecondary,
+                                  : AppColors.textParchment,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               app_date_utils.DateUtils.formatTaskDate(
                                 chore.dueDate!,
-                              ),
-                              style: GoogleFonts.montserrat(
-                                fontSize: 13,
+                              ).toUpperCase(),
+                              style: AppTextStyles.caption.copyWith(
                                 color: isOverdue
                                     ? AppColors.error
-                                    : AppColors.textSecondary,
+                                    : AppColors.textParchment,
                                 fontWeight: isOverdue
                                     ? FontWeight.w600
                                     : FontWeight.w400,
@@ -156,8 +162,8 @@ class ChoreListItem extends ConsumerWidget {
                               const SizedBox(width: 8),
                               const Icon(
                                 Icons.repeat,
-                                size: 14,
-                                color: AppColors.textSecondary,
+                                size: 12,
+                                color: AppColors.textParchment,
                               ),
                             ],
                           ],
@@ -168,11 +174,10 @@ class ChoreListItem extends ConsumerWidget {
                           chore.completionNote!.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
-                          '"${chore.completionNote}"',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 13,
+                          'LOG: "${chore.completionNote}"',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textParchment,
                             fontStyle: FontStyle.italic,
-                            color: AppColors.textTertiary,
                           ),
                         ),
                       ],
@@ -180,24 +185,27 @@ class ChoreListItem extends ConsumerWidget {
                   ),
                 ),
 
-                // Assignee Avatar (Placeholder for now)
+                // Assignee & Photo
                 if (chore.assignedToIds.isNotEmpty)
                   Container(
                     width: 32,
                     height: 32,
+                    margin: const EdgeInsets.only(left: 8),
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: AppColors.inputBg,
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundParchment,
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.textInk.withValues(alpha: 0.5),
+                      ),
                     ),
                     child: const Icon(
                       Icons.person,
-                      size: 18,
-                      color: AppColors.textSecondary,
+                      size: 16,
+                      color: AppColors.textInk,
                     ),
                   ),
 
-                // Completion Photo (if present)
                 if (chore.isCompleted &&
                     chore.photoUrl != null &&
                     chore.photoUrl!.isNotEmpty) ...[
@@ -217,14 +225,20 @@ class ChoreListItem extends ConsumerWidget {
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: Image.network(
-                          chore.photoUrl!,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: AppColors.primarySea),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.network(
+                            chore.photoUrl!,
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),

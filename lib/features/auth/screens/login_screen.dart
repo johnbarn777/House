@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/neon_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -121,149 +122,239 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: Colors.white, // Painter covers it
       body: Stack(
         children: [
+          // Background
+          Positioned.fill(child: CustomPaint(painter: SkyPainter())),
+
           // Animated logo
-          Center(
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    0,
-                    _logoSlideAnimation.value.dy *
-                        MediaQuery.of(context).size.height,
-                  ),
-                  child: Transform.scale(
-                    scale: _logoScaleAnimation.value,
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: screenWidth,
-                      height: screenWidth,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // Splash text (shown before animation)
-          if (!_animationComplete)
+          if (!_animationComplete || _isLogin)
             Positioned(
-              bottom: MediaQuery.of(context).size.height * 0.3,
+              top: screenHeight * 0.15,
               left: 0,
               right: 0,
-              child: Text(
-                'Efficient Living Loading',
-                style: AppTextStyles.link.copyWith(fontSize: 22),
-                textAlign: TextAlign.center,
-              ),
-            ),
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  final offset = _animationComplete
+                      ? const Offset(0, -1.0)
+                      : _logoSlideAnimation.value;
+                  final scale = _animationComplete
+                      ? 0.5
+                      : _logoScaleAnimation.value;
 
-          // Login form (fades in after animation)
-          if (_animationComplete)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: FadeTransition(
-                opacity: _formFadeAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Card(
-                    color: AppColors.cardDark,
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                  return Transform.translate(
+                    offset: Offset(0, offset.dy * screenHeight * 0.2),
+                    child: Transform.scale(
+                      scale: scale,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            _isLogin ? 'Welcome Back' : 'Create Account',
-                            style: AppTextStyles.title,
-                            textAlign: TextAlign.center,
+                          Image.asset(
+                            'assets/images/logo.png', // Assuming we keep the logo or replace it later
+                            width: screenWidth * 0.6,
+                            height: screenWidth * 0.6,
+                            fit: BoxFit.contain,
                           ),
-                          const SizedBox(height: 20),
-                          TextField(
-                            controller: _emailController,
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              hintText: 'Email',
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                            style: AppTextStyles.body,
-                          ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _passwordController,
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Password',
-                            ),
-                            obscureText: true,
-                            style: AppTextStyles.body,
-                          ),
-                          const SizedBox(height: 24),
-                          if (_isLoading)
-                            const CircularProgressIndicator()
-                          else
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: _submit,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primaryPurple,
-                                    minimumSize: const Size(
-                                      double.infinity,
-                                      48,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    _isLogin ? 'Sign In' : 'Sign Up',
-                                    style: AppTextStyles.button,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                if (_isLogin)
-                                  OutlinedButton(
-                                    onPressed: _googleSignIn,
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size(
-                                        double.infinity,
-                                        48,
+                          if (_animationComplete)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16.0),
+                              child: Text(
+                                "PIRATE HOUSE",
+                                style: AppTextStyles.title.copyWith(
+                                  color: AppColors.textInk,
+                                  fontSize: 32,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.5,
                                       ),
-                                      side: BorderSide(
-                                        color: AppColors.textSecondary,
-                                      ),
+                                      offset: const Offset(2, 2),
+                                      blurRadius: 0,
                                     ),
-                                    child: Text(
-                                      'Sign in with Google',
-                                      style: AppTextStyles.body,
-                                    ),
-                                  ),
-                                const SizedBox(height: 12),
-                                TextButton(
-                                  onPressed: () =>
-                                      setState(() => _isLogin = !_isLogin),
-                                  child: Text(
-                                    _isLogin
-                                        ? 'New here? Create account'
-                                        : 'Have an account? Sign In',
-                                    style: AppTextStyles.link,
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                         ],
                       ),
                     ),
+                  );
+                },
+              ),
+            ),
+
+          // Splash text
+          if (!_animationComplete)
+            Positioned(
+              bottom: screenHeight * 0.3,
+              left: 0,
+              right: 0,
+              child: Text(
+                'HOISTING THE SAILS...',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textInk,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+          // Login form
+          if (_animationComplete)
+            Positioned(
+              bottom: 40,
+              left: 24,
+              right: 24,
+              child: FadeTransition(
+                opacity: _formFadeAnimation,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundParchment,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.textParchment,
+                      width: 4,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        offset: const Offset(6, 6),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _isLogin ? 'WELCOME ABOARD!' : 'JOIN THE CREW!',
+                        style: AppTextStyles.title.copyWith(fontSize: 24),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          hintText: 'EMAIL',
+                          hintStyle: AppTextStyles.caption,
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: AppColors.textInk,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.5),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.textInk,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.primarySea,
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        style: AppTextStyles.body,
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          hintText: 'PASSWORD',
+                          hintStyle: AppTextStyles.caption,
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: AppColors.textInk,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.5),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.textInk,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.primarySea,
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                        obscureText: true,
+                        style: AppTextStyles.body,
+                      ),
+                      const SizedBox(height: 32),
+                      if (_isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.textInk,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 60,
+                              child: NeonButton(
+                                text: _isLogin ? 'BOARD SHIP' : 'SIGN ARTICLES',
+                                onPressed: _submit,
+                                glowColor: AppColors.secondaryGold,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            if (_isLogin)
+                              TextButton(
+                                onPressed: _googleSignIn,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.g_mobiledata,
+                                      size: 32,
+                                      color: AppColors.textInk,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'SIGN IN WITH GOOGLE',
+                                      style: AppTextStyles.button.copyWith(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () => setState(() => _isLogin = !_isLogin),
+                              child: Text(
+                                _isLogin
+                                    ? 'NEW RECRUIT? SIGN UP!'
+                                    : 'ALREADY CREW? LOG IN!',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.info,
+                                  fontSize: 16,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -272,4 +363,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       ),
     );
   }
+}
+
+class SkyPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw Sky Gradient
+    final Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final Gradient gradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        const Color(0xFF4FC3F7), // Light Blue Sky
+        AppColors.primarySea, // Deep Blue Sea
+      ],
+      stops: const [0.0, 0.7],
+    );
+
+    final paintBg = Paint()..shader = gradient.createShader(rect);
+    canvas.drawRect(rect, paintBg);
+
+    // Draw stylized waves at the bottom (Triangles)
+    final paintWaves = Paint()
+      ..color = AppColors.primarySea
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    double waveHeight = 20.0;
+    double waveWidth = 40.0;
+
+    path.moveTo(0, size.height);
+    path.lineTo(0, size.height - 100);
+
+    for (double i = 0; i < size.width; i += waveWidth) {
+      path.relativeQuadraticBezierTo(waveWidth / 2, -waveHeight, waveWidth, 0);
+    }
+
+    path.lineTo(size.width, size.height);
+    path.close();
+
+    canvas.drawPath(path, paintWaves);
+
+    // Draw Sun
+    final paintSun = Paint()
+      ..color = AppColors.secondaryGold
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(size.width * 0.8, size.height * 0.1),
+      40,
+      paintSun,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

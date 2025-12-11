@@ -85,7 +85,7 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
     final isEditing = widget.note != null;
 
     return Dialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.backgroundParchment,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -108,12 +108,12 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
                   style: AppTextStyles.body,
                   decoration: InputDecoration(
                     labelText: 'Title',
-                    labelStyle: AppTextStyles.bodySecondary,
+                    labelStyle: AppTextStyles.bodyLight,
                     enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.textSecondary),
+                      borderSide: BorderSide(color: AppColors.textParchment),
                     ),
                     focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.primaryPurple),
+                      borderSide: BorderSide(color: AppColors.primarySea),
                     ),
                   ),
                   validator: (value) => value == null || value.isEmpty
@@ -129,12 +129,12 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
                   maxLines: 3,
                   decoration: InputDecoration(
                     labelText: 'Content',
-                    labelStyle: AppTextStyles.bodySecondary,
+                    labelStyle: AppTextStyles.bodyLight,
                     enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.textSecondary),
+                      borderSide: BorderSide(color: AppColors.textParchment),
                     ),
                     focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.primaryPurple),
+                      borderSide: BorderSide(color: AppColors.primarySea),
                     ),
                   ),
                   validator: (value) => value == null || value.isEmpty
@@ -146,22 +146,20 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
                 // Urgency Dropdown
                 DropdownButtonFormField<NoteUrgency>(
                   value: _urgency,
-                  dropdownColor: AppColors.cardDarkAlt,
+                  dropdownColor: AppColors.surfaceWood,
                   style: AppTextStyles.body,
                   decoration: InputDecoration(
                     labelText: 'Urgency',
-                    labelStyle: AppTextStyles.bodySecondary,
+                    labelStyle: AppTextStyles.bodyLight,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textParchment,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                        color: AppColors.primaryPurple,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.primarySea),
                     ),
                   ),
                   items: NoteUrgency.values.map((u) {
@@ -179,7 +177,7 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
                                 ? AppColors.error
                                 : u == NoteUrgency.important
                                 ? AppColors.warning
-                                : AppColors.textSecondary,
+                                : AppColors.textParchment,
                             size: 18,
                           ),
                           const SizedBox(width: 8),
@@ -203,7 +201,7 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
                     Text('Pin to top', style: AppTextStyles.body),
                     Switch(
                       value: _isPinned,
-                      activeColor: AppColors.primaryPurple,
+                      activeTrackColor: AppColors.primarySea,
                       onChanged: (val) => setState(() => _isPinned = val),
                     ),
                   ],
@@ -216,13 +214,13 @@ class _AddEditNoteDialogState extends ConsumerState<AddEditNoteDialog> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Cancel', style: AppTextStyles.bodySecondary),
+                      child: Text('Cancel', style: AppTextStyles.bodyLight),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: _save,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryPurple,
+                        backgroundColor: AppColors.primarySea,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

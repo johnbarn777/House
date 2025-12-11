@@ -1,75 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'app_colors.dart';
 
-/// App text styles using Montserrat font family
 class AppTextStyles {
-  // Title styles
-  static TextStyle get title => GoogleFonts.montserrat(
-    fontSize: 24,
-    fontWeight: FontWeight.w600,
-    color: Colors.white,
+  // Headers - Carter One (Playful Cartoon Style)
+  static TextStyle get title => GoogleFonts.carterOne(
+    fontSize: 28,
+    color: AppColors.textInk,
+    letterSpacing: 1.0,
+    shadows: [
+      Shadow(
+        offset: const Offset(1, 1),
+        blurRadius: 0,
+        color: Colors.black.withValues(alpha: 0.1),
+      ),
+    ],
   );
 
-  static TextStyle get cardTitle => GoogleFonts.montserrat(
+  static TextStyle get moduleTitle => GoogleFonts.carterOne(
+    fontSize: 22,
+    color: AppColors.textInk,
+    letterSpacing: 0.5,
+  );
+
+  static TextStyle get cardTitle => GoogleFonts.carterOne(
     fontSize: 20,
+    color: AppColors.textLight, // Usually on wood
+    shadows: [
+      const Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black38),
+    ],
+  );
+
+  // Body - Nunito (Rounded, Friendly, Readable)
+  static TextStyle get body => GoogleFonts.nunito(
+    fontSize: 18,
+    fontWeight: FontWeight.w700, // Bold for cartoon feel
+    color: AppColors.textInk,
+  );
+
+  static TextStyle get bodyLight => GoogleFonts.nunito(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textLight,
+  );
+
+  static TextStyle get caption => GoogleFonts.nunito(
+    fontSize: 14,
     fontWeight: FontWeight.w600,
-    color: Colors.white,
+    fontStyle: FontStyle.italic,
+    color: AppColors.textParchment,
   );
 
-  static TextStyle get moduleTitle => GoogleFonts.montserrat(
-    fontSize: 20,
-    fontWeight: FontWeight.w500,
-    color: Colors.white,
-  );
+  static TextStyle get button =>
+      GoogleFonts.carterOne(fontSize: 18, color: AppColors.textInk);
 
-  static TextStyle get houseName => GoogleFonts.montserrat(
-    fontSize: 24,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  );
-
-  // Button styles
-  static TextStyle get button => GoogleFonts.montserrat(
+  static TextStyle get error => GoogleFonts.nunito(
     fontSize: 16,
-    fontWeight: FontWeight.w500,
-    color: Colors.white,
-  );
-
-  // Body styles
-  static TextStyle get body => GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-    color: Colors.white,
-  );
-
-  static TextStyle get bodySecondary => GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-    color: const Color(0xFFBBBBBB),
-  );
-
-  static TextStyle get caption => GoogleFonts.montserrat(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: const Color(0xFFBBBBBB),
-  );
-
-  static TextStyle get error => GoogleFonts.montserrat(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: const Color(0xFFFF4D4D),
-  );
-
-  // Link styles
-  static TextStyle get link => GoogleFonts.montserrat(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: const Color(0xFFAE00FF),
-  );
-
-  static TextStyle get houseCode => GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-    color: const Color(0xFF555555),
+    fontWeight: FontWeight.w800,
+    color: AppColors.error,
   );
 }

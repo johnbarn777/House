@@ -34,7 +34,7 @@ class NoteListItem extends ConsumerWidget {
         urgencyIcon = Icons.warning_amber_rounded;
         break;
       case NoteUrgency.info:
-        urgencyColor = AppColors.textSecondary;
+        urgencyColor = AppColors.textParchment;
         urgencyIcon = Icons.info_outline;
         break;
     }
@@ -49,14 +49,14 @@ class NoteListItem extends ConsumerWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        color: AppColors.deleteRed,
+        color: AppColors.accentRed,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (direction) async {
         return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.backgroundParchment,
             title: Text('Delete Note?', style: AppTextStyles.cardTitle),
             content: Text(
               'Are you sure you want to delete this note?',
@@ -87,12 +87,10 @@ class NoteListItem extends ConsumerWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.cardDark,
+            color: AppColors.surfaceWood,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: note.isPinned
-                  ? AppColors.primaryPurple
-                  : Colors.transparent,
+              color: note.isPinned ? AppColors.primarySea : Colors.transparent,
               width: 1,
             ),
           ),
@@ -106,7 +104,7 @@ class NoteListItem extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       note.title,
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.bodyLight.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -116,14 +114,14 @@ class NoteListItem extends ConsumerWidget {
                       padding: EdgeInsets.only(left: 8),
                       child: Icon(
                         Icons.push_pin,
-                        color: AppColors.primaryPurple,
+                        color: AppColors.primarySea,
                         size: 16,
                       ),
                     ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text(note.content, style: AppTextStyles.bodySecondary),
+              Text(note.content, style: AppTextStyles.bodyLight),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,7 +131,7 @@ class NoteListItem extends ConsumerWidget {
                     style: AppTextStyles.caption,
                   ),
                   if (isCreator)
-                    Icon(Icons.edit, size: 14, color: AppColors.textTertiary),
+                    Icon(Icons.edit, size: 14, color: AppColors.textParchment),
                 ],
               ),
             ],

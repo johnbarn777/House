@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_app/core/models/house.dart';
-import 'package:flutter_app/core/providers/houses_provider.dart';
+import '../../../core/models/house.dart';
+import '../../../core/providers/houses_provider.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/plank_container.dart';
 
 class HousesCard extends ConsumerWidget {
   final String userId;
@@ -18,17 +21,23 @@ class HousesCard extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Leave house?'),
-        content: const Text('Are you sure you want to leave this house?'),
+        backgroundColor: AppColors.backgroundParchment,
+        title: Text(
+          'MUTINY?',
+          style: AppTextStyles.cardTitle.copyWith(color: AppColors.textInk),
+        ),
+        content: Text('Sever ties with this crew?', style: AppTextStyles.body),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text('STAY', style: AppTextStyles.button),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Leave'),
+            child: Text(
+              'JUMP SHIP',
+              style: AppTextStyles.button.copyWith(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -43,7 +52,6 @@ class HousesCard extends ConsumerWidget {
               'members': FieldValue.arrayRemove([userId]),
             });
 
-        // If current house is the one left, clear selection
         final currentHouseId = ref.read(currentHouseIdProvider);
         if (currentHouseId == houseId) {
           ref.read(currentHouseIdProvider.notifier).setHouseId(null);
@@ -52,7 +60,7 @@ class HousesCard extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Error leaving house: $e')));
+          ).showSnackBar(SnackBar(content: Text('Error leaving ship: $e')));
         }
       }
     }
@@ -62,76 +70,81 @@ class HousesCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentHouseId = ref.watch(currentHouseIdProvider);
 
-    return Card(
+    return PlankContainer(
       margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Houses',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'FLEET REGISTRY',
+            style: AppTextStyles.cardTitle.copyWith(color: AppColors.textLight),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          if (houses.isEmpty)
+            Text(
+              'No ships in fleet.',
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            if (houses.isEmpty)
-              const Text(
-                'You aren’t in any houses.',
-                textAlign: TextAlign.center,
-              )
-            else
-              ...houses.map((house) {
-                final isActive = house.id == currentHouseId;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: isActive
-                      ? BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(8),
-                        )
-                      : null,
-                  child: ListTile(
-                    title: Text(
-                      house.houseName,
-                      style: TextStyle(
-                        fontWeight: isActive
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: isActive
-                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                            : null,
-                      ),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isActive)
-                          Icon(
-                            Icons.check,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.exit_to_app,
-                            color: Colors.red,
-                          ),
-                          onPressed: () => _leaveHouse(context, house.id, ref),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      ref
-                          .read(currentHouseIdProvider.notifier)
-                          .setHouseId(house.id);
-                    },
+              style: AppTextStyles.bodyLight.copyWith(
+                fontStyle: FontStyle.italic,
+              ),
+            )
+          else
+            ...houses.map((house) {
+              final isActive = house.id == currentHouseId;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? AppColors.secondaryGold.withValues(alpha: 0.2)
+                      : Colors.transparent,
+                  border: Border.all(
+                    color: isActive
+                        ? AppColors.secondaryGold
+                        : AppColors.textLight.withValues(alpha: 0.2),
+                    width: 1,
                   ),
-                );
-              }),
-          ],
-        ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: ListTile(
+                  title: Text(
+                    house.houseName,
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: isActive
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isActive
+                          ? AppColors.secondaryGold
+                          : AppColors.textLight,
+                    ),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isActive)
+                        const Icon(
+                          Icons.anchor,
+                          color: AppColors.secondaryGold,
+                        ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.exit_to_app,
+                          color: AppColors.error,
+                        ),
+                        onPressed: () => _leaveHouse(context, house.id, ref),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    ref
+                        .read(currentHouseIdProvider.notifier)
+                        .setHouseId(house.id);
+                  },
+                ),
+              );
+            }),
+        ],
       ),
     );
   }

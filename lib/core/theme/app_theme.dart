@@ -6,130 +6,135 @@ class AppTheme {
   static ThemeData get theme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
 
       // Color Scheme
-      colorScheme: ColorScheme.dark(
-        primary: AppColors.primaryPurple,
-        surface: AppColors.safeAreaBg,
-        onSurface: AppColors.textPrimary,
-        error: AppColors.error,
-        secondary: AppColors.primaryPurple.withValues(alpha: 0.7),
+      colorScheme: ColorScheme.light(
+        primary: AppColors.primarySea,
+        surface: AppColors.backgroundParchment,
+        onSurface: AppColors.textInk,
+        error: AppColors.accentRed,
+        secondary: AppColors.secondaryGold,
       ),
 
       // Scaffold
-      scaffoldBackgroundColor: AppColors.backgroundDark,
+      scaffoldBackgroundColor: AppColors.backgroundParchment,
 
       // AppBar
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.backgroundDark,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: false,
-        titleTextStyle: GoogleFonts.montserrat(
-          fontSize: 20,
+        centerTitle: true,
+        titleTextStyle: GoogleFonts.rye(
+          fontSize: 22,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColors.textInk,
+          letterSpacing: 1.0,
         ),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: const IconThemeData(color: AppColors.textInk),
       ),
 
       // Card
       cardTheme: CardThemeData(
-        color: AppColors.cardDark,
-        elevation: 5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        shadowColor: Colors.black.withValues(alpha: 0.5),
+        color: AppColors.backgroundParchment,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(2),
+          side: const BorderSide(
+            color: AppColors.textInk,
+            width: 1,
+            style: BorderStyle.none,
+          ),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       ),
 
       // Text Theme
       textTheme: TextTheme(
-        headlineMedium: GoogleFonts.montserrat(
+        headlineMedium: GoogleFonts.rye(
           fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textInk,
         ),
-        titleLarge: GoogleFonts.montserrat(
+        titleLarge: GoogleFonts.rye(
           fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textInk,
         ),
-        titleMedium: GoogleFonts.montserrat(
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+        titleMedium: GoogleFonts.rye(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textInk,
         ),
-        bodyLarge: GoogleFonts.montserrat(
+        bodyLarge: GoogleFonts.crimsonText(
+          // Crimson Text for body
+          fontSize: 18,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textInk,
+        ),
+        bodyMedium: GoogleFonts.crimsonText(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          color: AppColors.textPrimary,
+          color: AppColors.textInk,
         ),
-        bodyMedium: GoogleFonts.montserrat(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textSecondary,
-        ),
-        bodySmall: GoogleFonts.montserrat(
+        bodySmall: GoogleFonts.crimsonText(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: AppColors.textSecondary,
+          color: AppColors.textParchment,
         ),
-        labelLarge: GoogleFonts.montserrat(
+        labelLarge: GoogleFonts.rye(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textInk,
         ),
       ),
 
       // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.inputBg,
+        fillColor: AppColors.backgroundParchment,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 14,
+          vertical: 16,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: AppColors.textInk),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: AppColors.textInk),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: AppColors.primaryPurple,
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: AppColors.primarySea, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.error, width: 1),
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: AppColors.accentRed, width: 2),
         ),
-        labelStyle: GoogleFonts.montserrat(
+        labelStyle: GoogleFonts.crimsonText(
           fontSize: 16,
-          color: AppColors.textSecondary,
+          color: AppColors.textParchment,
         ),
-        hintStyle: GoogleFonts.montserrat(
+        hintStyle: GoogleFonts.crimsonText(
           fontSize: 16,
-          color: AppColors.textSecondary,
+          color: AppColors.textParchment.withValues(alpha: 0.5),
         ),
       ),
 
       // Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryPurple,
-          foregroundColor: AppColors.textPrimary,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          textStyle: GoogleFonts.montserrat(
+          backgroundColor: AppColors.primarySea,
+          foregroundColor: AppColors.secondaryGold,
+          elevation: 4,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          textStyle: GoogleFonts.rye(
             fontSize: 16,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
           ),
         ),
       ),
@@ -137,52 +142,53 @@ class AppTheme {
       // Text Button
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primaryPurple,
-          textStyle: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
+          foregroundColor: AppColors.textInk,
+          textStyle: GoogleFonts.rye(fontSize: 14, fontWeight: FontWeight.bold),
         ),
       ),
 
       // Floating Action Button
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primaryPurple,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 5,
+        backgroundColor: AppColors.accentRed,
+        foregroundColor: AppColors.textLight,
+        elevation: 8,
+        shape: CircleBorder(),
       ),
 
       // Bottom Navigation Bar
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppColors.tabBarBg,
-        selectedItemColor: AppColors.textPrimary,
-        unselectedItemColor: Colors.grey,
+        backgroundColor: AppColors.surfaceWood,
+        selectedItemColor: AppColors.secondaryGold,
+        unselectedItemColor: AppColors.textLight.withValues(alpha: 0.6),
         type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        selectedLabelStyle: GoogleFonts.montserrat(
+        elevation: 8,
+        selectedLabelStyle: GoogleFonts.rye(
           fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.bold,
         ),
-        unselectedLabelStyle: GoogleFonts.montserrat(
+        unselectedLabelStyle: GoogleFonts.rye(
           fontSize: 12,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.normal,
         ),
       ),
 
       // Dialog
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.cardDark,
-        elevation: 5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        titleTextStyle: GoogleFonts.montserrat(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+        backgroundColor: AppColors.backgroundParchment,
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: const BorderSide(color: AppColors.textInk, width: 1),
         ),
-        contentTextStyle: GoogleFonts.montserrat(
-          fontSize: 16,
+        titleTextStyle: GoogleFonts.rye(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textInk,
+        ),
+        contentTextStyle: GoogleFonts.crimsonText(
+          fontSize: 18,
           fontWeight: FontWeight.w400,
-          color: AppColors.textSecondary,
+          color: AppColors.textInk,
         ),
       ),
     );

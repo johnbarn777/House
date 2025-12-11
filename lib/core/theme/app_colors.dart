@@ -1,35 +1,38 @@
 import 'package:flutter/material.dart';
 
-/// App color palette matching the React Native design system
 class AppColors {
-  // Primary
-  static const primaryPurple = Color(0xFFAE00FF);
+  // Cartoon Pirate Palette
+  static const primarySea = Color(0xFF0099CC); // Bright Blue Sea
+  static const secondaryGold = Color(0xFFFFCC00); // Cartoon Gold
+  static const accentRed = Color(0xFFFF5555); // Candy Red
+  static const accentGreen = Color(0xFF66BB6A); // Parrot Green
 
-  // Backgrounds
-  static const backgroundDark = Color(0xFF000000);
-  static const safeAreaBg = Color(0xFF0A0F1F);
-  static const cardDark = Color(0xFF1A1A1A);
-  static const cardDarkAlt = Color(0xFF1E1E1E);
-  static const inputBg = Color(0xFF262626);
-  static const tabBarBg = Color(0xFF000814);
+  static const backgroundParchment = Color(0xFFFFF8E1); // Creamy Paper
+  static const surfaceWood = Color(0xFFA0522D); // Sienna / Milk Chocolate
+  static const surfaceWoodDark = Color(0xFF8B4513); // Saddle Brown
 
-  // Text
-  static const textPrimary = Color(0xFFFFFFFF);
-  static const textSecondary = Color(0xFFBBBBBB);
-  static const textTertiary = Color(0xFF888888);
-  static const textMuted = Color(0xFF555555);
+  // Text Colors (High Contrast)
+  static const textInk = Color(
+    0xFF3E2723,
+  ); // Dark Brown (instead of harsh black)
+  static const textParchment = Color(0xFF5D4037); // Lighter Brown
+  static const textLight = Color(0xFFFFF8E1); // Cream (on dark backgrounds)
 
-  // Status & Actions
-  static const Color error = Color(0xFFE57373);
-  static const Color warning = Color(0xFFFFA726); // Orange for Snooze
-  static const Color success = Color(0xFF81C784);
-  static const deleteRed = Color(0xFF8B0000);
-  static const editGray = Color(0xFFAAAAAA);
-  static const disabled = Color(0xFF444444);
-  static const disabledAlt = Color(0xFF555555);
+  // Functional Colors
+  static const success = Color(0xFF4CAF50); // Bright Green
+  static const warning = Color(0xFFFF9800); // Bright Orange
+  static const error = Color(0xFFFF1744); // Bright Red
+  static const info = Color(0xFF29B6F6); // Sky Blue
 
-  // Circle Hero (HouseScreen)
-  static const circleWhite = Color(0xFFFFFFFF);
-  static const circleTextDark = Color(0xFF000000);
-  static const circleTextGray = Color(0xFF555555);
+  static const LinearGradient oceanGradient = LinearGradient(
+    colors: [primarySea, Color(0xFF006699)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient woodGradient = LinearGradient(
+    colors: [surfaceWood, surfaceWoodDark],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 }

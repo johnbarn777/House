@@ -19,7 +19,7 @@ class HouseNotesModule extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDarkAlt,
+        color: AppColors.surfaceWood,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -36,7 +36,7 @@ class HouseNotesModule extends ConsumerWidget {
                     builder: (context) => const AddEditNoteDialog(),
                   );
                 },
-                icon: const Icon(Icons.add, color: AppColors.primaryPurple),
+                icon: const Icon(Icons.add, color: AppColors.accentRed),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -46,10 +46,7 @@ class HouseNotesModule extends ConsumerWidget {
           notesAsync.when(
             data: (notes) {
               if (notes.isEmpty) {
-                return Text(
-                  'No notes yet.',
-                  style: AppTextStyles.bodySecondary,
-                );
+                return Text('No notes yet.', style: AppTextStyles.bodyLight);
               }
 
               final pinnedNotes = notes.where((n) => n.isPinned).toList();
@@ -64,7 +61,7 @@ class HouseNotesModule extends ConsumerWidget {
                         const Icon(
                           Icons.push_pin,
                           size: 14,
-                          color: AppColors.textTertiary,
+                          color: AppColors.textParchment,
                         ),
                         const SizedBox(width: 4),
                         Text('Pinned', style: AppTextStyles.caption),
@@ -92,7 +89,7 @@ class HouseNotesModule extends ConsumerWidget {
                           const Icon(
                             Icons.notes,
                             size: 14,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textParchment,
                           ),
                           const SizedBox(width: 4),
                           Text('General', style: AppTextStyles.caption),

@@ -140,3 +140,42 @@ Incentivize participation and create a positive feedback loop for household main
 ---
 
 **Designed with ❤️ for better shared living.**
+
+---
+
+## 🏴‍☠️ **Pirate Theme Implementation**
+
+The application has been overhauled with a playful **Cartoon Pirate Theme** to make household management a fun, engaging adventure.
+
+### **The Concept**
+Your house is a **Ship**, and your housemates are the **Crew**. The goal is simple: **Keep the Ship Afloat.**
+- **Ship Health**: Every overdue chore damages the ship's integrity (-5%). Completing duties repairs it (+2%).
+- **Status**: Visual indicators range from "Smooth Sailing" (Health > 90) to "Abandon Ship!" (Health < 30).
+
+### **Feature Mapping**
+| Feature | Pirate Equivalent | Description |
+| :--- | :--- | :--- |
+| **House Code** | **Ship's Charter** | Sign the charter to join the crew. |
+| **Chores** | **Duty Roster** | "Swab the decks", "Secure the galley", "Hoist the mainsail". |
+| **Fridge** | **The Galley** | Manage your rations (Cargo) and provisions (Provisions). |
+| **Members** | **The Crew** | Collaborators on the high seas. |
+| **Settings** | **Quartermaster** | Configuration and Captain's logs. |
+
+### **Design System ("Cartoon Pirate")**
+A vibrant, high-contrast aesthetic designed for readability and fun.
+
+- **Aesthetic**:
+    - **Cel-Shaded Styling**: Thick iron borders, hard shadows, and 3D "gem" buttons.
+    - **Fonts**: `Carter One` (Playful Headers) and `Nunito` (Friendly, readable body).
+- **Color Palette**:
+    - 🌊 **Ocean Blue** (`#0099CC`): Primary branding.
+    - 💰 **Cartoon Gold** (`#FFCC00`): Accents and interactive elements.
+    - 🪵 **Milk Chocolate** (`#A0522D`): Wood paneling surfaces.
+    - 📜 **Creamy Parchment** (`#FFF8E1`): High-contrast background for text.
+    - 🍬 **Candy Red** (`#FF5555`): Alerts and danger zones.
+
+### **Gamification Mechanics**
+- **Decay**: Uncompleted chores past their due date damage the ship's health daily.
+- **Repair**: Completing chores restores health.
+- **Visuals**: The "Ship Status" wheel on the deck gives immediate feedback on how well the house is managed.
+

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../core/providers/houses_provider.dart';
 import '../../chores/providers/chores_provider.dart';
-import '../../chores/models/chore.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import 'package:flutter_app/features/houses/widgets/join_house_dialog.dart';
+import '../../../core/widgets/plank_container.dart';
+import '../widgets/join_house_dialog.dart';
 import '../../house_notes/widgets/house_notes_module.dart';
-import 'package:intl/intl.dart';
+import '../../gamification/services/ship_health_service.dart';
 
 class HouseScreen extends ConsumerWidget {
   const HouseScreen({super.key});
@@ -17,171 +18,298 @@ class HouseScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final housesAsync = ref.watch(housesProvider);
     final currentHouseId = ref.watch(currentHouseIdProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
-      appBar: AppBar(
-        title: Text('House', style: AppTextStyles.cardTitle),
-        backgroundColor: AppColors.backgroundDark,
-        elevation: 0,
-      ),
-      body: housesAsync.when(
-        data: (houses) {
-          if (houses.isEmpty) {
-            return Center(
-              child: Text(
-                'No houses found. Create or join a house to get started.',
-                style: AppTextStyles.body,
-                textAlign: TextAlign.center,
+      backgroundColor: AppColors.backgroundParchment, // Parchment background
+      body: Stack(
+        children: [
+          // Background Texture (Gradient for now)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.backgroundParchment,
+                    AppColors.backgroundParchment.withValues(alpha: 0.9),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
-            );
-          }
-
-          // Auto-select first house if none selected
-          if (currentHouseId == null && houses.isNotEmpty) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ref
-                  .read(currentHouseIdProvider.notifier)
-                  .setHouseId(houses.first.id);
-            });
-          }
-
-          final currentHouse = houses.firstWhere(
-            (h) => h.id == currentHouseId,
-            orElse: () => houses.first,
-          );
-
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                // Circular Hero Section
-                SizedBox(
-                  height: screenWidth,
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    clipBehavior: Clip.none,
-                    children: [
-                      // Large white circle
-                      Positioned(
-                        bottom: 0,
-                        child: Container(
-                          width: screenWidth * 2,
-                          height: screenWidth * 2,
-                          decoration: const BoxDecoration(
-                            color: AppColors.circleWhite,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      // House name and code, positioned in the visible part of circle
-                      Positioned(
-                        bottom: screenWidth * 0.25,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              currentHouse.houseName,
-                              style: AppTextStyles.houseName,
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'House ID: ${currentHouse.id}',
-                              style: AppTextStyles.houseCode,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content below the circle
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // House Selector (if multiple houses)
-                      if (houses.length > 1) ...[
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.cardDark,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: DropdownButton<String>(
-                            value: currentHouseId ?? houses.first.id,
-                            isExpanded: true,
-                            dropdownColor: AppColors.cardDark,
-                            underline: const SizedBox(),
-                            style: AppTextStyles.body,
-                            items: houses.map((house) {
-                              return DropdownMenuItem(
-                                value: house.id,
-                                child: Text(house.houseName),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                ref
-                                    .read(currentHouseIdProvider.notifier)
-                                    .setHouseId(value);
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-
-                      // Upcoming Chores Module
-                      _buildUpcomingChoresModule(ref, currentHouse.id),
-                      const SizedBox(height: 16),
-
-                      // House Notes Module
-                      const HouseNotesModule(),
-                      const SizedBox(height: 16),
-
-                      // Members Module
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.cardDarkAlt,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Members', style: AppTextStyles.moduleTitle),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${currentHouse.members.length} member(s)',
-                              style: AppTextStyles.body,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text('Error: $error', style: AppTextStyles.error)),
+          ),
+
+          housesAsync.when(
+            data: (houses) {
+              if (houses.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('NO SHIP DOCKED', style: AppTextStyles.title),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primarySea,
+                          foregroundColor: AppColors.secondaryGold,
+                          textStyle: AppTextStyles.button,
+                        ),
+                        child: const Text("SIGN SHIP'S CHARTER"),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const JoinHouseDialog(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              // Auto-select first house logic
+              if (currentHouseId == null && houses.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ref
+                      .read(currentHouseIdProvider.notifier)
+                      .setHouseId(houses.first.id);
+                });
+              }
+
+              final currentHouse = houses.firstWhere(
+                (h) => h.id == currentHouseId,
+                orElse: () => houses.first,
+              );
+
+              return SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  child: Column(
+                    children: [
+                      // Top Bar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "CAPTAIN'S LOG",
+                              style: AppTextStyles.moduleTitle.copyWith(
+                                fontSize: 16,
+                              ),
+                            ),
+                            // House Selector (Mini)
+                            if (houses.length > 1)
+                              DropdownButton<String>(
+                                value: currentHouseId ?? houses.first.id,
+                                items: houses
+                                    .map(
+                                      (house) => DropdownMenuItem(
+                                        value: house.id,
+                                        child: Text(
+                                          house.houseName,
+                                          style: AppTextStyles.body.copyWith(
+                                            color: AppColors.textInk,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (v) {
+                                  if (v != null) {
+                                    ref
+                                        .read(currentHouseIdProvider.notifier)
+                                        .setHouseId(v);
+                                  }
+                                },
+                                dropdownColor: AppColors.backgroundParchment,
+                                underline: const SizedBox(),
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppColors.textInk,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Ship Status (Replaces Reactor Core)
+                      // Temporary placeholder for Ship Wheel
+                      // Ship Status Wheel
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final health = ref.watch(shipHealthProvider);
+                          final status = ref.watch(shipStatusProvider);
+
+                          Color statusColor;
+                          if (health >= 70) {
+                            statusColor = AppColors.success;
+                          } else if (health >= 30) {
+                            statusColor = AppColors.warning;
+                          } else {
+                            statusColor = AppColors.error;
+                          }
+
+                          return Container(
+                            height: 200,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.surfaceWood,
+                              border: Border.all(color: statusColor, width: 6),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: statusColor.withValues(alpha: 0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                                const BoxShadow(
+                                  color: Colors.black45,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    health > 0
+                                        ? Icons.anchor
+                                        : Icons.warning_amber_rounded,
+                                    size: 48,
+                                    color: statusColor,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${health.toInt()}%',
+                                    style: AppTextStyles.title.copyWith(
+                                      color: statusColor,
+                                      fontSize: 32,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    status,
+                                    textAlign: TextAlign.center,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textLight,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // Modules Container
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Upcoming Chores (The Job Board)
+                            _buildUpcomingChoresModule(ref, currentHouse.id),
+                            const SizedBox(height: 16),
+
+                            // House Notes Module (The Scroll)
+                            // This widget needs its own internal refactor, but for now it sits here.
+                            const HouseNotesModule(), // Needs its own refactor to match style but for now it's placed here
+
+                            const SizedBox(height: 16),
+
+                            // Members (The Crew)
+                            PlankContainer(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.people,
+                                        color: AppColors.secondaryGold,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'THE CREW',
+                                        style: AppTextStyles.cardTitle.copyWith(
+                                          color: AppColors.secondaryGold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: currentHouse.members
+                                        .map(
+                                          (m) => Chip(
+                                            label: Text(
+                                              m,
+                                              style: AppTextStyles.caption
+                                                  .copyWith(
+                                                    color: AppColors.textInk,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                            ),
+                                            backgroundColor:
+                                                AppColors.backgroundParchment,
+                                            side: const BorderSide(
+                                              color: AppColors.textInk,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.textInk),
+            ),
+            error: (error, stack) => Center(
+              child: Text(
+                'SHIPWRECK ERROR: $error',
+                style: AppTextStyles.error,
+              ),
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => const JoinHouseDialog(),
-          );
-        },
-        backgroundColor: AppColors.primaryPurple,
-        child: const Icon(Icons.add, color: AppColors.textPrimary),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 100.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const JoinHouseDialog(),
+            );
+          },
+          backgroundColor: AppColors.accentRed, // Red wax seal color
+          child: const Icon(Icons.add, color: AppColors.textLight),
+        ),
       ),
     );
   }
@@ -192,8 +320,6 @@ class HouseScreen extends ConsumerWidget {
 
     return choresAsync.when(
       data: (allChores) {
-        // Filter chores for current house
-        // Note: choresProvider already filters by houseId via repository query
         final houseChores = allChores.toList()
           ..sort(
             (a, b) => (a.dueDate ?? DateTime.now()).compareTo(
@@ -217,136 +343,156 @@ class HouseScreen extends ConsumerWidget {
             .take(3)
             .toList();
 
-        return Container(
+        return PlankContainer(
+          // Wood background for job board
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.cardDarkAlt,
-            borderRadius: BorderRadius.circular(8),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Upcoming Chores', style: AppTextStyles.moduleTitle),
-              const SizedBox(height: 12),
-              if (houseChores.where((c) => !c.isCompleted).isEmpty)
-                Text(
-                  'No chores scheduled yet.',
-                  style: AppTextStyles.bodySecondary,
-                )
-              else ...[
-                // My upcoming chores
-                if (myUpcomingChores.isNotEmpty) ...[
-                  Text(
-                    'Your Chores:',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.primaryPurple,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...myUpcomingChores.map(
-                    (chore) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            size: 8,
-                            color: AppColors.primaryPurple,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(chore.title, style: AppTextStyles.body),
-                          ),
-                          if (chore.dueDate != null)
-                            Text(
-                              DateFormat('MMM d').format(chore.dueDate!),
-                              style: AppTextStyles.caption,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (otherUpcomingChores.isNotEmpty)
-                    const SizedBox(height: 12),
-                ],
-                // Other upcoming chores
-                if (otherUpcomingChores.isNotEmpty) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('DUTY ROSTER', style: AppTextStyles.cardTitle),
                   if (myUpcomingChores.isNotEmpty)
-                    Text(
-                      'Other Chores:',
-                      style: AppTextStyles.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentRed,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.white38),
+                      ),
+                      child: Text(
+                        "ALL HANDS!",
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textLight,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  const SizedBox(height: 8),
-                  ...otherUpcomingChores.map(
-                    (chore) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            size: 8,
-                            color: AppColors.textSecondary,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              chore.title,
-                              style: AppTextStyles.bodySecondary,
-                            ),
-                          ),
-                          if (chore.dueDate != null)
-                            Text(
-                              DateFormat('MMM d').format(chore.dueDate!),
-                              style: AppTextStyles.caption,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
-              ],
+              ),
+              const SizedBox(height: 12),
+
+              // Internal parchment area for list
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundParchment,
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 2,
+                      offset: Offset(1, 1),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (houseChores.where((c) => !c.isCompleted).isEmpty)
+                      Text(
+                        'Decks are clean, Captain.',
+                        style: AppTextStyles.body.copyWith(
+                          fontStyle: FontStyle.italic,
+                        ),
+                      )
+                    else ...[
+                      if (myUpcomingChores.isNotEmpty) ...[
+                        Text(
+                          'YOUR ORDERS:',
+                          style: AppTextStyles.button.copyWith(
+                            fontSize: 14,
+                            color: AppColors.textInk,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...myUpcomingChores.map(
+                          (chore) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons
+                                      .check_box_outline_blank, // Old style checkbox
+                                  size: 20,
+                                  color: AppColors.textInk,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    chore.title,
+                                    style: AppTextStyles.body,
+                                  ),
+                                ),
+                                if (chore.dueDate != null)
+                                  Text(
+                                    DateFormat('MMM d').format(chore.dueDate!),
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.error,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (otherUpcomingChores.isNotEmpty)
+                          const Divider(color: AppColors.textInk),
+                      ],
+
+                      if (otherUpcomingChores.isNotEmpty) ...[
+                        if (myUpcomingChores.isNotEmpty)
+                          Text(
+                            'CREW ASSIGNMENTS:',
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        const SizedBox(height: 8),
+                        ...otherUpcomingChores.map(
+                          (chore) => Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.circle,
+                                  size: 6,
+                                  color: AppColors.textParchment,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    chore.title,
+                                    style: AppTextStyles.caption,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ],
+                ),
+              ),
             ],
           ),
         );
       },
-      loading: () => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardDarkAlt,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Upcoming Chores', style: AppTextStyles.moduleTitle),
-            const SizedBox(height: 12),
-            const Center(
-              child: SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
-          ],
+      loading: () => const PlankContainer(
+        padding: EdgeInsets.all(16),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.secondaryGold),
         ),
       ),
-      error: (error, stack) => Container(
+      error: (error, stack) => PlankContainer(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardDarkAlt,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Upcoming Chores', style: AppTextStyles.moduleTitle),
-            const SizedBox(height: 8),
-            Text('Failed to load chores', style: AppTextStyles.error),
-          ],
-        ),
+        child: Text('Failed to read logs', style: AppTextStyles.error),
       ),
     );
   }

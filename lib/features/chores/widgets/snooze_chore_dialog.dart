@@ -66,9 +66,9 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                 return Theme(
                   data: ThemeData.dark().copyWith(
                     colorScheme: const ColorScheme.dark(
-                      primary: AppColors.primaryPurple,
+                      primary: AppColors.primarySea,
                       onPrimary: Colors.white,
-                      surface: AppColors.cardDark,
+                      surface: AppColors.backgroundParchment,
                       onSurface: Colors.white,
                     ),
                   ),
@@ -88,7 +88,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryPurple : AppColors.inputBg,
+            color: isSelected ? AppColors.primarySea : AppColors.surfaceWood,
             borderRadius: BorderRadius.circular(8),
             border: isSelected
                 ? Border.all(color: Colors.white, width: 1)
@@ -102,7 +102,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
-                  color: isSelected ? Colors.white : AppColors.textPrimary,
+                  color: isSelected ? Colors.white : AppColors.textInk,
                 ),
               ),
               if (!isCustom)
@@ -111,8 +111,8 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                   style: GoogleFonts.montserrat(
                     fontSize: 10,
                     color: isSelected
-                        ? Colors.white.withOpacity(0.8)
-                        : AppColors.textSecondary,
+                        ? Colors.white.withValues(alpha: 0.8)
+                        : AppColors.textParchment,
                   ),
                 ),
             ],
@@ -125,7 +125,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.backgroundParchment,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -149,7 +149,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
               Text(
                 'Snooze until...',
                 style: GoogleFonts.montserrat(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textParchment,
                   fontSize: 14,
                 ),
               ),
@@ -187,9 +187,9 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                       return Theme(
                         data: ThemeData.dark().copyWith(
                           colorScheme: const ColorScheme.dark(
-                            primary: AppColors.primaryPurple,
+                            primary: AppColors.primarySea,
                             onPrimary: Colors.white,
-                            surface: AppColors.cardDark,
+                            surface: AppColors.backgroundParchment,
                             onSurface: Colors.white,
                           ),
                         ),
@@ -207,8 +207,8 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                     color:
                         _newDueDate != null &&
                             !_isPreset(DateTime.now(), _newDueDate!)
-                        ? AppColors.primaryPurple
-                        : AppColors.inputBg,
+                        ? AppColors.primarySea
+                        : AppColors.surfaceWood,
                     borderRadius: BorderRadius.circular(8),
                     border:
                         (_newDueDate != null &&
@@ -229,7 +229,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                           (_newDueDate != null &&
                               !_isPreset(DateTime.now(), _newDueDate!))
                           ? Colors.white
-                          : AppColors.textPrimary,
+                          : AppColors.textInk,
                     ),
                   ),
                 ),
@@ -241,11 +241,11 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                 controller: _reasonController,
                 decoration: InputDecoration(
                   labelText: 'Success Reason (Required)',
-                  labelStyle: const TextStyle(color: AppColors.textSecondary),
+                  labelStyle: const TextStyle(color: AppColors.textParchment),
                   hintText: 'Why are you delaying this?',
-                  hintStyle: const TextStyle(color: AppColors.textTertiary),
+                  hintStyle: const TextStyle(color: AppColors.textParchment),
                   filled: true,
-                  fillColor: AppColors.inputBg,
+                  fillColor: AppColors.surfaceWood,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -270,7 +270,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                     child: Text(
                       'Cancel',
                       style: GoogleFonts.montserrat(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textParchment,
                       ),
                     ),
                   ),
@@ -278,7 +278,7 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryPurple,
+                      backgroundColor: AppColors.primarySea,
                       foregroundColor: Colors.white,
                     ),
                     child: const Text('Snooze Chore'),
