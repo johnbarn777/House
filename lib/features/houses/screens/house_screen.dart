@@ -10,6 +10,9 @@ import '../../../core/widgets/plank_container.dart';
 import '../widgets/join_house_dialog.dart';
 import '../../house_notes/widgets/house_notes_module.dart';
 import '../../gamification/services/ship_health_service.dart';
+import '../../gamification/widgets/doubloon_counter.dart';
+import '../../gamification/widgets/quartermaster_store_dialog.dart';
+import '../../gamification/widgets/leaderboard_card.dart';
 
 class HouseScreen extends ConsumerWidget {
   const HouseScreen({super.key});
@@ -100,6 +103,22 @@ class HouseScreen extends ConsumerWidget {
                               style: AppTextStyles.moduleTitle.copyWith(
                                 fontSize: 16,
                               ),
+                            ),
+                            const Spacer(),
+                            const DoubloonCounter(),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.store,
+                                color: AppColors.textInk,
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      const QuartermasterStoreDialog(),
+                                );
+                              },
                             ),
                             // House Selector (Mini)
                             if (houses.length > 1)
@@ -227,6 +246,11 @@ class HouseScreen extends ConsumerWidget {
                             // House Notes Module (The Scroll)
                             // This widget needs its own internal refactor, but for now it sits here.
                             const HouseNotesModule(), // Needs its own refactor to match style but for now it's placed here
+
+                            const SizedBox(height: 16),
+
+                            // Leaderboard
+                            const LeaderboardCard(),
 
                             const SizedBox(height: 16),
 

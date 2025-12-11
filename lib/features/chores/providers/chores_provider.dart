@@ -4,6 +4,7 @@ import '../../../core/services/notification_service.dart';
 import '../../../core/providers/houses_provider.dart';
 import '../models/chore.dart';
 import '../repositories/chores_repository.dart';
+import '../../gamification/services/gamification_service.dart';
 
 // Provides the list of chores for the current house
 final choresProvider = StreamProvider<List<Chore>>((ref) {
@@ -78,6 +79,22 @@ class ChoreController extends AsyncNotifier<void> {
       await ref
           .read(choresRepositoryProvider)
           .completeChore(choreId, userId, photoUrl: photoUrl, note: note);
+
+      // --- Gamification Integration ---
+      try {
+        await ref
+            .read(gamificationServiceProvider)
+            .awardPoints(
+              userId: userId,
+              points: 10, // Base points, logic can be enhanced later
+              doubloons: 5, // Base reward
+              reason: "Completed Chore: $choreId", // Ideally we fetch title
+            );
+      } catch (e) {
+        // Fail silently or log? Gamification shouldn't block chore completion UX
+        print("Gamification Error: $e");
+      }
+      // --------------------------------
 
       final dummyChore = Chore(id: choreId, houseId: '', title: '');
       await ref

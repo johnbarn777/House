@@ -3,16 +3,25 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 
-class SnoozeChoreDialog extends StatefulWidget {
-  final DateTime currentDueDate;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../gamification/services/gamification_service.dart';
+import '../../../core/providers/user_provider.dart';
 
-  const SnoozeChoreDialog({super.key, required this.currentDueDate});
+class SnoozeChoreDialog extends ConsumerStatefulWidget {
+  final DateTime currentDueDate;
+  final String? choreId; // Added to enable token usage
+
+  const SnoozeChoreDialog({
+    super.key,
+    required this.currentDueDate,
+    this.choreId,
+  });
 
   @override
-  State<SnoozeChoreDialog> createState() => _SnoozeChoreDialogState();
+  ConsumerState<SnoozeChoreDialog> createState() => _SnoozeChoreDialogState();
 }
 
-class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
+class _SnoozeChoreDialogState extends ConsumerState<SnoozeChoreDialog> {
   final _reasonController = TextEditingController();
   DateTime? _newDueDate;
   final _formKey = GlobalKey<FormState>();
@@ -41,6 +50,32 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
     }
   }
 
+  Future<void> _useSnoozeToken(String userId) async {
+    if (_newDueDate == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pick a date first!')));
+      return;
+    }
+
+    try {
+      // Consume token
+      await ref
+          .read(gamificationServiceProvider)
+          .consumeItem(userId: userId, itemId: 'snooze_token');
+
+      // Actually, let's fix the service in next step.
+      // For now, just return a special reason.
+      Navigator.of(
+        context,
+      ).pop({'date': _newDueDate, 'reason': 'Used Snooze Token 💤'});
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
   Widget _buildDateOption(
     String label,
     DateTime date, {
@@ -50,8 +85,6 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
         _newDueDate != null &&
         DateUtils.isSameDay(_newDueDate!, date) &&
         !isCustom;
-    // For custom, checking exact equality might be tricky if time is involved, but usually date picker returns midnight.
-    // Simplifying: Just distinct colors.
 
     return Expanded(
       child: GestureDetector(
@@ -124,6 +157,8 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final userAsync = ref.watch(currentUserProvider);
+
     return Dialog(
       backgroundColor: AppColors.backgroundParchment,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -155,7 +190,6 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
               ),
               const SizedBox(height: 12),
 
-              // Preset Options Row
               Row(
                 children: [
                   _buildDateOption(
@@ -173,7 +207,6 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                 ],
               ),
               const SizedBox(height: 12),
-              // Custom Date using the same style logic for consistency
               GestureDetector(
                 onTap: () async {
                   final picked = await showDatePicker(
@@ -237,6 +270,30 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
 
               const SizedBox(height: 20),
 
+              userAsync.when(
+                data: (user) {
+                  final hasToken = (user?.inventory['snooze_token'] ?? 0) > 0;
+                  if (!hasToken) return const SizedBox.shrink();
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber.shade700,
+                        padding: const EdgeInsets.all(12),
+                      ),
+                      onPressed: () => _useSnoozeToken(user!.id),
+                      icon: const Icon(
+                        Icons.confirmation_number,
+                      ), // Ticket icon
+                      label: const Text("Use Snooze Token (Skip Approval)"),
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+
               TextFormField(
                 controller: _reasonController,
                 decoration: InputDecoration(
@@ -253,6 +310,8 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
                 ),
                 style: const TextStyle(color: Colors.white),
                 validator: (value) {
+                  // If token used, this might be bypassed, but here we enforce it for manual.
+                  // Since token button pops immediately, this validator only runs for manual Submit.
                   if (value == null || value.trim().isEmpty) {
                     return 'Please provide a reason';
                   }
@@ -293,7 +352,6 @@ class _SnoozeChoreDialogState extends State<SnoozeChoreDialog> {
   }
 
   bool _isPreset(DateTime now, DateTime target) {
-    // Basic check for UI highlighting logic if needed, simplifed for now based on button taps
     return false; // logic handled in tapping
   }
 }

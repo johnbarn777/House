@@ -6,6 +6,9 @@ class UserProfile {
   final String? displayName;
   final String? photoURL;
   final String? scheduleDescription;
+  final int doubloons;
+  final int lifetimePoints;
+  final Map<String, int> inventory;
 
   UserProfile({
     required this.id,
@@ -13,6 +16,9 @@ class UserProfile {
     this.displayName,
     this.photoURL,
     this.scheduleDescription,
+    this.doubloons = 0,
+    this.lifetimePoints = 0,
+    this.inventory = const {},
   });
 
   factory UserProfile.fromFirestore(DocumentSnapshot doc) {
@@ -23,6 +29,9 @@ class UserProfile {
       displayName: data['displayName'],
       photoURL: data['photoURL'],
       scheduleDescription: data['scheduleDescription'],
+      doubloons: data['doubloons'] ?? 0,
+      lifetimePoints: data['lifetimePoints'] ?? 0,
+      inventory: Map<String, int>.from(data['inventory'] ?? {}),
     );
   }
 
@@ -32,6 +41,9 @@ class UserProfile {
       'displayName': displayName,
       'photoURL': photoURL,
       'scheduleDescription': scheduleDescription,
+      'doubloons': doubloons,
+      'lifetimePoints': lifetimePoints,
+      'inventory': inventory,
     };
   }
 }

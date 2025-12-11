@@ -45,6 +45,21 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
+
+    // Gamification: Transactions
+    // Allow users to create records if they own them.
+    // Important for GamificationService.
+    match /transaction_history/{transactionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Gamification: Week Cycles
+    // Allow read for historical leaderboards. 
+    // Write should ideally be server-side, but if we have client-side logic for now:
+    match /week_cycles/{cycleId} {
+      allow read: if isSignedIn();
+    }
     
     // Default deny
     match /{document=**} {

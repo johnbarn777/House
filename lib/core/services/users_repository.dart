@@ -14,6 +14,13 @@ class UsersRepository {
     return UserProfile.fromFirestore(doc);
   }
 
+  Stream<UserProfile?> getUserStream(String userId) {
+    return _firestore.collection('users').doc(userId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return UserProfile.fromFirestore(doc);
+    });
+  }
+
   Future<List<UserProfile>> getUsers(List<String> userIds) async {
     if (userIds.isEmpty) return [];
     // Firestore 'in' query is limited to 10 items.
